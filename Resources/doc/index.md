@@ -11,7 +11,7 @@ Installation
 #### Pour Symfony >= 2.4
 
 executer la commande:
-`composer require "Orca/userLogBundle"`
+`composer require "Orca/userLogBundle:dev"`
 
 Ou ajouter à `composer.json` à `require` section:
 
