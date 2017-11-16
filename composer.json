@@ -12,7 +12,12 @@
     }
   ],
   "require": {
+    "symfony/framework-bundle": "3.*",
     "suncat/mobile-detect-bundle": "1.0.*"
   },
-  "target-dir": "orca/UserLogBundle"
+  "autoload": {
+    "psr-0": { "orca\\UserLogBundle": "" }
+  },
+  "target-dir": "orca/UserLogBundle",
+  "license": "MIT"
 }
