@@ -1,0 +1,20 @@
+{
+  "name": "Orca/UserLogBundle",
+  "type": "symfony-bundle",
+  "description": "Bundle pour la gestion des log d'actions des utilisateurs",
+  "keywords": [ "log", "orca" ],
+  "homepage": "https://github.com/orcaformation/userLogBundle",
+  "license": "Reserved",
+  "authors": [
+    {
+      "name": "ZAGHRAT Mouncef",
+      "email": "mzaghrat@orcaformation.fr"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.2",
+    "symfony/framework-bundle": "~2.0|3.*",
+    "suncat/mobile-detect-bundle": "1.0.*"
+  },
+  "minimum-stability": "dev"
+}
