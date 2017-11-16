@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+.idea/inspectionProfiles/
+.idea/modules.xml
+.idea/userLogBundle.iml
+.idea/workspace.xml
+Resources/views/
