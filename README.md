@@ -16,7 +16,7 @@ Ce bundle requiert l'installation du bundle [MobileDetectBundle](https://github.
 
 La documentation est au niveau du fichier `Resources/doc/index.md` :
 
-[Lire la documentation](https://github.com/orcaformation/userLogBundle/Resources/doc/index.md)
+[Lire la documentation](https://github.com/orcaformation/userLogBundle/blob/master/Resources/doc/index.md)
 
 ## Credits
 
