@@ -13,10 +13,10 @@
   ],
   "autoload" : {
         "psr-0" : {
-            "UserLogBundle" : ""
+            "Orca\\UserLogBundle" : ""
         }
     },  
-  "target-dir" : "UserLogBundle",
+  "target-dir" : "Orca/UserLogBundle",
   "require": {
     "symfony/framework-bundle": "3.*",
     "suncat/mobile-detect-bundle": "1.0.*"
