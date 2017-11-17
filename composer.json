@@ -11,6 +11,12 @@
       "email": "mzaghrat@orcaformation.fr"
     }
   ],
+  "autoload" : {
+        "psr-0" : {
+            "orcaformation\\UserLogBundle" : ""
+        }
+    },  
+  "target-dir" : "orcaformation/UserLogBundle",
   "require": {
     "symfony/framework-bundle": "3.*",
     "suncat/mobile-detect-bundle": "1.0.*"
