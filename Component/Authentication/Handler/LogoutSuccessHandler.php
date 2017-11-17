@@ -107,7 +107,7 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
         $em->persist($userLog);
         $em->flush();
 
-        $response = new RedirectResponse($this->router->generate('login'));
+        $response = new RedirectResponse($this->router->generate('userLog_homepage_login'));
 
         return $response;
     }

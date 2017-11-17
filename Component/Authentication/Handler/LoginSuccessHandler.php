@@ -108,7 +108,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         $em->persist($userLog);
         $em->flush();
 
-        $response = new RedirectResponse($this->router->generate('tblsite_index'));
+        $response = new RedirectResponse($this->router->generate('userLog_homepage_login'));
 
         return $response;
     }
