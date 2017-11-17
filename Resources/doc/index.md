@@ -32,6 +32,7 @@ public function registerBundles()
     return array(
          // ...
          new Orca\UserLogBundle\OrcaUserLogBundle(),
+         new SunCat\MobileDetectBundle\MobileDetectBundle(),
         // ...
     );
 }
