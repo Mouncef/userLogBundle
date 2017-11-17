@@ -63,8 +63,16 @@ firewalls:
             logout:
                 success_handler: orca_user_log.component.authentication.handler.logout_success_handler      # redirect, no_redirect, redirect_without_path
 ```
+### préparation route principale : userLog_homepage_login
 
-
+```DefaultController
+    /**
+     * @Route("/",name="homepage")
+     * @Route("/",name="userLog_homepage_login")
+     */
+    public function indexAction(Request $request)
+    {
+```
 ### Générer la table des Log : Tbl_User_Log
 ``` console 
 php bin/console doctrine:schema:update --dump-sql
