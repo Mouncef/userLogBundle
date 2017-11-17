@@ -1,5 +1,5 @@
 {
-  "name": "Orca/UserLogBundle",
+  "name": "Orcaformation",
   "type": "symfony-bundle",
   "description": "Bundle pour la gestion des log d'actions des utilisateurs",
   "keywords": [ "log", "orca" ],
@@ -13,10 +13,10 @@
   ],
   "autoload" : {
         "psr-0" : {
-            "orcaformation\\UserLogBundle" : ""
+            "Orca\\UserLogBundle" : ""
         }
     },  
-  "target-dir" : "orcaformation/UserLogBundle",
+  "target-dir" : "Orca/UserLogBundle",
   "require": {
     "symfony/framework-bundle": "3.*",
     "suncat/mobile-detect-bundle": "1.0.*"
