@@ -5,12 +5,13 @@ Symfony 3x bundle pour le tracking des actions des utilisateurs.
 Introduction
 ------------
 
-Ce bundle requiert l'installation du bundle [MobileDetectBundle](https://github.com/suncat2000/MobileDetectBundle)
+Ce bundle requiert l'installation des bundles : 
+- [MobileDetectBundle](https://github.com/suncat2000/MobileDetectBundle)
+- [DoctrineExtensions](https://github.com/beberlei/DoctrineExtensions)
 
-* Il permet de détecter les actions Login et Logout
-* Le tracking de toutes les requêtes et réponses émise par le serveur
-* Affiche le type de terminal pour chaque device (Desktop, Mobile, Tablette)
-
+Ce bundle à pour finalité de tracker les actions des utilisateurs notamment : 
+- Les Login et les logout.
+- Les requêtes émisent. 
 
 ## Documentation
 

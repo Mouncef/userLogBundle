@@ -1,6 +1,6 @@
 # UserLogBundle
 
-Symfony 3x bundle pour le tracking des actions des utilisateurs.
+Bundle Symfony 3x pour le tracking des actions des utilisateurs.
 
 
 Installation
@@ -8,20 +8,20 @@ Installation
 
 ### Composer
 
-#### Pour Symfony >= 2.4
-
-executer la commande:
-`composer require "Orca/userLogBundle:dev"`
-
-Ou ajouter à `composer.json` à `require` section:
+Ajouter au `composer.json` les lignes suivantes:
 
 ```json
-{
-    "Orca/userLogBundle": "dev"
-}
+"require" : {
+...
+        "Orcaformation" : "dev-master"
+    },
+"repositories" : [{
+        "type" : "vcs",
+        "url" : "git@github.com:orcaformation/userLogBundle.git"
+    }],    
 ```
 et executer la commande:
-`php composer.phar update`
+`composer update "Orcaformation" `
 
 ### Ajouter ce bundle au kernel
 
@@ -37,10 +37,44 @@ public function registerBundles()
     );
 }
 ```
+### Ajouter au config.yml
+
+Pour activer les extensions de doctrine ajouter au `config.yml` les lignes suivantes :
+
+```yaml
+#app/conﬁg/config.yml
+doctrine:
+    ...
+    orm:
+        ...
+        dql:
+            datetime_functions:
+                date_format: DoctrineExtensions\Query\Mysql\DateFormat
+            string_functions:
+                group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
+```
+
+### Ajouter au routing.yml
+
+Pour afficher la page d'administration ajouter au `routing.yml` les lignes suivantes :
+ 
+```yaml
+#app/conﬁg/routing.yml
+_demo:
+    resource: "@OrcaUserLogBundle/Resources/config/routing.yml"
+    type:     yaml
+    prefix:   /userLogChart
+```
+
+### Installer les Assets
+Pour installer les assets, exécuter la commande suivante : 
+``` console 
+php bin/console assets:install
+```
 
 ### Configuration
 
-Pour tracker les reqêtes émise il faut ajouter aux services du projet la configuration suivante :
+Pour tracker les reqêtes émisent il faut ajouter aux services du projet la configuration suivante :
 
 ```yaml
 #app/conﬁg/services.yml
