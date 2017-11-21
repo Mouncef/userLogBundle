@@ -1,0 +1,223 @@
+{% extends "OrcaUserLogBundle::layout.html.twig" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="dash-unit">
+                <div id="piewithlegend"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-unit">
+                <div id="semicircledonut"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-unit">
+                <dtitle>Stat Global</dtitle>
+                <hr>
+                <div class="cont">
+                    <p>
+                        <b>{% for nb in nbCNXbyDay %}<ok>{{ nb.ct }}</ok>{% endfor %}</b>
+                        |Connexions pour Ajourd'hui
+                    </p>
+                    <br>
+
+                    <p>
+                        <b>{% for nb in nbErrorbyDay %}<bad>{{ nb.ct }}</bad>{% endfor %}</b>
+                        | Erreur pour Ajourd'hui
+                    </p>
+                    <br>
+                    <hr>
+                    <p>
+                        <b>{% for nb in nbCNXbyMonth %}<ok>{{ nb.ct }}</ok>{% endfor %}</b>
+                        |Connexions pour ce mois
+                    </p>
+                    <br>
+
+                    <p>
+                        <b>{% for nb in nbErrorbyMonth %}<bad>{{ nb.ct }}</bad>{% endfor %}</b>
+                        | Erreur pour ce mois
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="basiccolumn"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
+    <script>
+        // Apply the theme
+        Highcharts.setOptions(Highcharts.theme);
+        /*--------------------------------------------------------------- Pie with legend -------------------------------------------------------------------------*/
+        Highcharts.chart('piewithlegend', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie',
+                height: 75 + '%'
+            },
+            title: {
+                text: 'Nombre de connexions / types de terminal',
+                style: {"fontSize": "12px"}
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}</b>' /*en pourcentage {point.percentage:.1f}%*/
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: false
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: 'Nombre de connexions',
+                colorByPoint: true,
+                data: [
+                    {% for nb in nbCNXbyTypeTerminal %}
+                    {
+                        name: '{{ nb.terminalType }}',
+                        y: {{ nb.ct }}
+                    },
+                    {% endfor %}
+                ]
+            }]
+        });
+
+        /*--------------------------------------------------------------- Semi Circle Donut -------------------------------------------------------------------------*/
+        Highcharts.chart('semicircledonut', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: 0,
+                plotShadow: false,
+                height: 75 + '%'
+            },
+            title: {
+                text: 'Nombre de connexions /terminal',
+                style: {"fontSize": "12px"},
+                align: 'center',
+                verticalAlign: 'middle',
+                y: -100
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}</b>' /*en pourcentage {point.percentage:.1f}%*/
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        enabled: true,
+                        distance: -50,
+                        style: {
+                            fontWeight: 'bold',
+                            color: 'white'
+                        }
+                    },
+                    startAngle: -90,
+                    endAngle: 90,
+                    center: ['50%', '75%']
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Nombre de connexions',
+                innerSize: '50%',
+                data: [
+                    {% for nb in nbCNXbyTerminal %}
+                        ['{{ nb.terminal }}', {{ nb.ct }}],
+                    {% endfor %}
+                ]
+            }]
+        });
+
+        /*--------------------------------------------------------------- Basic Column -------------------------------------------------------------------------*/
+        Highcharts.chart('basiccolumn', {
+            chart: {
+                type: 'column',
+                height: 30 + '%'
+            },
+            title: {
+                text: 'Nombre de Connexions par mois ',
+                style: {"fontSize": "12px"}
+            },
+//            subtitle: {
+//                text: 'Source: User Log Bundle',
+//                style: {"fontSize": "10px"}
+//            },
+            xAxis: {
+                categories: [
+                    {% for month in months %}
+                        {% if month.mois == 1 %}
+                            'Janvier',
+                        {% elseif month.mois == 2 %}
+                            'Fevrier',
+                        {% elseif month.mois == 3 %}
+                            'Mars',
+                        {% elseif month.mois == 4 %}
+                            'Avril',
+                        {% elseif month.mois == 5 %}
+                            'Mai',
+                        {% elseif month.mois == 6 %}
+                            'Juin',
+                        {% elseif month.mois == 7 %}
+                            'Juillet',
+                        {% elseif month.mois == 8 %}
+                            'Août',
+                        {% elseif month.mois == 9 %}
+                            'Septembre',
+                        {% elseif month.mois == 10 %}
+                            'October',
+                        {% elseif month.mois == 11 %}
+                            'Novembre',
+                        {% elseif month.mois == 12 %}
+                            'Decembre',
+                        {% endif %}
+                    {% endfor %}
+                ],
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Rainfall (connexion)'
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} connexion</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [
+                {% for nb in nbCNXbyTerminalAndbyMonth %}
+                {
+
+                    name: '{{ nb.terminal }}',
+                    data: [{{ nb.nb }}]
+                },
+                {% endfor %}
+
+            ]
+        });
+
+
+    </script>
+{% endblock %}

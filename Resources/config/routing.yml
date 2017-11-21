@@ -1,12 +1,18 @@
-gchart_demo:
-    path:  /demo
-    defaults: { _controller: OrcaUserLogBundle:Demo:demo }
-gchart_demo2:
-    path:  /demo2
-    defaults: { _controller: OrcaUserLogBundle:Demo:demo2 }
-gchart_demo3:
-    path:  /demo3
-    defaults: { _controller: OrcaUserLogBundle:Demo:demo3 }
-gchart_demoDeviceType:
-    path:  /demoTypeDevice
-    defaults: { _controller: OrcaUserLogBundle:Demo:demoTypeDevice }
+#gchart_demo:
+#    path:  /demo
+#    defaults: { _controller: OrcaUserLogBundle:Demo:demo }
+#gchart_demo2:
+#    path:  /demo2
+#    defaults: { _controller: OrcaUserLogBundle:Demo:demo2 }
+#gchart_demo3:
+#    path:  /demo3
+#    defaults: { _controller: OrcaUserLogBundle:Demo:demo3 }
+#gchart_demoDeviceType:
+#    path:  /demoTypeDevice
+#    defaults: { _controller: OrcaUserLogBundle:Demo:demoTypeDevice }
+
+#------------------------------------------------------ demo dashboard ------------------------------------------------- #
+
+dashboard_index:
+    path:   /dashboard
+    defaults:  { _controller: OrcaUserLogBundle:Dashboard:index }
