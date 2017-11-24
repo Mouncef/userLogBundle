@@ -1,0 +1,113 @@
+{% extends "OrcaUserLogBundle::layout.html.twig" %}
+
+{% block content %}
+    <style>
+        tbody{
+            color: #000;
+        }
+        tbody tr {
+            font-size: 12px;
+        }
+        .dataTables_length, .dataTables_filter, .dataTables_info{
+            color: #FFF !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+            color: #FFF !important;
+        }
+    </style>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dash-unit" style="padding: 5px;">
+                <table id="example" class="display" cellspacing="0" width="100%" style="padding: 5px;">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>URL</th>
+                        <th>Terminal</th>
+                        <th>Zone</th>
+                        <th>Utilisateur</th>
+                        <th>Code Erreur</th>
+                    </tr>
+                    </thead>
+                    {#<tfoot>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Nbr connexion</th>
+                        <th>Nbr Erreur</th>
+                        <th>Dernière Cnx</th>
+                        <th>Terminals</th>
+                    </tr>
+                    </tfoot>#}
+                    <tbody>
+                    {% for error in errors %}
+                        <tr>
+                            <td>{{ error.date|date('d-m-Y H:i') }}</td>
+                            {#<td>
+                                {% set array = error.action|split(':') %}
+
+                                {% for element in array %}
+                                    {{ element }}<br />
+                                {% endfor %}
+                            </td>#}
+                            <td>
+                                <a href="http://{{ host }}/app_dev.php{{ error.uri }}" target="_blank">
+                                    {% if error.uri|length > 100 %}
+                                        {{ error.uri[:100] }} ...
+                                    {% else %}
+                                        {{ error.uri }}
+                                    {% endif %}
+                                </a>
+                            </td>
+                            <td>{{ error.terminalType }}</td>
+                            <td>{{ error.ville }}</td>
+                            <td>{{ error.user }}</td>
+                            <td>{{ error.errorCode }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "order": [0,'desc'],
+                "bfilter":true,
+                "language": {
+                    "sProcessing": "Traitement en cours...",
+                    "sSearch": "Rechercher&nbsp;:",
+                    "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
+                    "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+                    "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+                    "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
+                    "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+                    "oPaginate": {
+                        "sFirst": "Premier",
+                        "sPrevious": "Pr&eacute;c&eacute;dent",
+                        "sNext": "Suivant",
+                        "sLast": "Dernier"
+                    }
+                }
+            });
+        } );
+    </script>
+{% endblock %}

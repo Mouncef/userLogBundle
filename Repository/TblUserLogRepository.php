@@ -174,5 +174,45 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
+    public function getConnexions($mois)
+    {
+        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion, 
+                COUNT(
+                    (CASE WHEN l.`error_code` NOT IN (200,302) THEN 1 ELSE NULL END)
+                ) AS nb_erreur,
+                MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals
+                
+                FROM `tbl_user_log` l 
+                WHERE l.`action` = 'Login_BO'
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                GROUP BY l.`user_id`
+                ORDER BY nb_connexion DESC"
+        ;
 
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('nb_connexion', 'nb_con');
+        $rsm->addScalarResult('nb_erreur', 'nb_err');
+        $rsm->addScalarResult('last_conn', 'last_conn');
+        $rsm->addScalarResult('terminals', 'ters');
+        $query = $this->_em->createNativeQuery($sql, $rsm)
+            ->setParameter('mois', $mois)
+        ;
+
+        return $query->getResult();
+    }
+
+    public function getErrors()
+    {
+        $query = $this->_em->createQueryBuilder()
+            ->select('l.date','l.action','l.uri','l.terminalType','l.ville','l.user','l.errorCode')
+            ->from('OrcaUserLogBundle:TblUserLog','l')
+            ->where('l.errorCode not in (200,302)')
+            ->orderBy('l.date ','DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $query;
+    }
 }

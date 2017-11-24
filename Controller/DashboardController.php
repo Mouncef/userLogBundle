@@ -10,6 +10,7 @@ namespace Orca\UserLogBundle\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class DashboardController extends Controller
@@ -43,6 +44,34 @@ class DashboardController extends Controller
             'nbErrorbyMonth'            => $nbErrorByMonth,
             'months'                    => $months,
             'nbCNXbyTerminalAndbyMonth' => $nbCNXByTerminalAndByMonth
+        ]);
+    }
+
+    public function connexionAction()
+    {
+        $date = new \DateTime('now');
+
+        $month = date_format($date, 'm');
+
+
+        $em = $this->getDoctrine()->getManager();
+        $connexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getConnexions($month);
+
+        return $this->render('OrcaUserLogBundle:Demo:connexion.html.twig', [
+            'connexions' => $connexions
+        ]);
+    }
+
+    public function erreurAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getErrors();
+
+        return $this->render('OrcaUserLogBundle:Demo:erreur.html.twig', [
+            'errors'        => $errors,
+            'host'          => $host
         ]);
     }
 }

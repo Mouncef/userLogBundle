@@ -53,8 +53,8 @@ class ResponseListener
         //Get Status code
         $statusCode = $response->getStatusCode();
 
-
-        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url && $action == $controller && $action != null){
+        //&& $action == $controller && $action != null
+        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
 
             // get User()
             if ($security->getToken() == null){
@@ -65,21 +65,27 @@ class ResponseListener
 
             if ($em->isOpen()){
                 // inserting
-
-                if (!empty($routeName) && $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
+                //!empty($routeName) &&
+                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
 
 
                     $userLog = new TblUserLog();
 
                     $userLog->setDate(new \DateTime('now'));
-                    $userLog->setRouteName($routeName);
-                    $userLog->setAction($action);
-                    if (strlen($uri) > 250)
-                    {
-                        $userLog->setUri('Uri trop longue !!');
-                    } else {
-                        $userLog->setUri($uri);
+                    if ($routeName == null){
+                        $routeName = "No Route !";
                     }
+                    $userLog->setRouteName($routeName);
+                    if ($action == null){
+                        $action = "No Action !";
+                    }
+                    $userLog->setAction($action);
+//                    if (strlen($uri) > 250)
+//                    {
+//                        $userLog->setUri('Uri trop longue !!');
+//                    } else {
+                        $userLog->setUri($uri);
+//                    }
                     $userLog->setUser($user);
                     $userLog->setIp($ip);
 

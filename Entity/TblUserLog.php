@@ -80,7 +80,7 @@ class TblUserLog
     /**
      * @var string
      *
-     * @ORM\Column(name="uri", type="string", length=255, nullable=true)
+     * @ORM\Column(name="uri", type="text", nullable=true)
      */
     private $uri;
 
