@@ -117,4 +117,14 @@ Récupere le code sql de la table et l'éxecuter au niveau du SGBD ou utiliser l
 ``` console
 php bin/console doctrine:schema:update --force
 ```
+### Ajouter à votre entité la méthode getUserId() si elle n'existe Pas
+```User Entity
+    class User {
+    ...
+        public function getUserId()
+        {
+           return $this->id;
+        }
+    }
+```
 
