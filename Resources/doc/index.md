@@ -127,4 +127,11 @@ php bin/console doctrine:schema:update --force
         }
     }
 ```
-
+### Mettre le bundle hors pare-feu
+```yaml
+#app/config/security.yml
+firewalls:
+       userLog:
+            pattern: ^/userLogChart
+            security: false 
+```
