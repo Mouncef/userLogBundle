@@ -117,6 +117,10 @@ Récupere le code sql de la table et l'éxecuter au niveau du SGBD ou utiliser l
 ``` console
 php bin/console doctrine:schema:update --force
 ```
+ou executer la requête suivante : 
+``` sql
+CREATE TABLE tbl_user_log (id INT AUTO_INCREMENT NOT NULL, DATE DATETIME NOT NULL, user_id INT NOT NULL, pays VARCHAR(255) DEFAULT NULL, ip VARCHAR(255) DEFAULT NULL, ville VARCHAR(255) DEFAULT NULL, terminal VARCHAR(255) DEFAULT NULL, ACTION VARCHAR(255) DEFAULT NULL, route_name VARCHAR(255) DEFAULT NULL, uri LONGTEXT DEFAULT NULL, error_code VARCHAR(255) DEFAULT NULL, terminal_type VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = INNODB;
+```
 ### Ajouter à votre entité la méthode getUserId() si elle n'existe Pas
 ```User Entity
     class User {
