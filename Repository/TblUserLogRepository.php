@@ -176,15 +176,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getConnexions($mois)
     {
-        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion, 
-                COUNT(
-                    (CASE WHEN l.`error_code` NOT IN (200,302) THEN 1 ELSE NULL END)
-                ) AS nb_erreur,
-                MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals
-                
+        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals,
+                (
+                SELECT COUNT(lo.`error_code`)
+                FROM `tbl_user_log` lo
+                WHERE lo.`error_code` NOT IN (200,302)
+                AND lo.`user_id`=l.`user_id`
+                ) AS nb_erreur
                 FROM `tbl_user_log` l 
                 WHERE l.`action` = 'Login_BO'
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND DATE_FORMAT(l.`date`, \"%m\") = 11
                 GROUP BY l.`user_id`
                 ORDER BY nb_connexion DESC"
         ;
