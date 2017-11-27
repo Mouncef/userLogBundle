@@ -18,7 +18,6 @@
     },  
   "target-dir" : "Orca/UserLogBundle",
   "require": {
-    "symfony/framework-bundle": "3.*",
     "suncat/mobile-detect-bundle": "1.0.*",
     "beberlei/DoctrineExtensions": "*"
   }
