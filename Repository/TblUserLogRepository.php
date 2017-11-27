@@ -185,7 +185,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 ) AS nb_erreur
                 FROM `tbl_user_log` l 
                 WHERE l.`action` = 'Login_BO'
-                AND DATE_FORMAT(l.`date`, \"%m\") = 11
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
                 GROUP BY l.`user_id`
                 ORDER BY nb_connexion DESC"
         ;
