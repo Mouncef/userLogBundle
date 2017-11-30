@@ -33,8 +33,40 @@ class DashboardController extends Controller
         $nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByMonth($month, $year);
         $months = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getMonths($year);
         $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($year);
-
-
+        $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFive($month,$year);
+        $pays=$em->getRepository('OrcaUserLogBundle:TblUserLog')->getPays();
+        $users = $ios = $navigator= array();
+        $index  =0;
+        $found = false;
+        //for($i = 0 ; $i<5 ; $i++)$users[$i]['name']= $topfiveUsers[$i]['user'];
+        for($i = 0 ; $i< 9 ; $i++){
+            if(!in_array($topfiveUsers[$i]['user'] , $users)){
+                $users[$index++] = $topfiveUsers[$i]['user'];
+                if($topfiveUsers[$i]['terminalType'] == 'Navigateur Web'){
+                    $navigator[$index] = $topfiveUsers[$i]['nbr'];
+                    for ($j = $i+1 ; $j<count($topfiveUsers) ; $j++){
+                        if ($topfiveUsers[$j]['terminalType'] == 'IOS' && $topfiveUsers[$j]['user'] == $topfiveUsers[$i]['user']){
+                            $ios[$index] = $topfiveUsers[$j]['nbr'];
+                            $found=1;
+                        }
+                    }
+                    if (!$found)$ios[$index] = 0;
+                    $found = false;
+                }
+                else if($topfiveUsers[$i]['terminalType'] == 'IOS'){
+                    $ios[$index] = $topfiveUsers[$i]['nbr'];
+                    for ($j = $i+1 ; $j<count($topfiveUsers) ; $j++){
+                        if ($topfiveUsers[$j]['terminalType'] == 'Navigateur Web' && $topfiveUsers[$j]['user'] == $topfiveUsers[$i]['user']){
+                            $navigator[$index] = $topfiveUsers[$j]['nbr'];
+                            $found=1;
+                        }
+                    }
+                    if (!$found)$ios[$index] = 0;
+                    $found = false;
+                }
+            }
+            if($index ==4)break;
+        }
         return $this->render('OrcaUserLogBundle:Demo:dashboard.html.twig',[
             'nbCNXbyTypeTerminal'       => $nbCNXByTerminalType,
             'nbCNXbyTerminal'           => $nbCNXByTerminal,
@@ -43,7 +75,11 @@ class DashboardController extends Controller
             'nbCNXbyMonth'              => $nbCNXByMonth,
             'nbErrorbyMonth'            => $nbErrorByMonth,
             'months'                    => $months,
-            'nbCNXbyTerminalAndbyMonth' => $nbCNXByTerminalAndByMonth
+            'nbCNXbyTerminalAndbyMonth' => $nbCNXByTerminalAndByMonth,
+            'topFiveUsers' => $users,
+            'topIosUsers' => $ios,
+            'topNavigatorUsers' => $navigator,
+            'pays' => $pays
         ]);
     }
 

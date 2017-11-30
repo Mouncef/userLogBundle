@@ -41,7 +41,12 @@ class TblUserLog
      * @ORM\Column(name="pays", type="string", length=255, nullable=true)
      */
     private $pays;
-
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="code_pays", type="string", length=255, nullable=true)
+     */
+    private $codePays;
     /**
      * @var string
      *
@@ -123,8 +128,8 @@ class TblUserLog
     {
         $this->date = $date;
     }
-    
-    
+
+
 
     /**
      * @return int
@@ -285,8 +290,24 @@ class TblUserLog
     {
         $this->terminalType = $terminalType;
     }
-    
-    
-    
+
+    /**
+     * @return string
+     */
+    public function getCodePays()
+    {
+        return $this->codePays;
+    }
+
+    /**
+     * @param string $codePays
+     */
+    public function setCodePays($codePays)
+    {
+        $this->codePays = $codePays;
+    }
+
+
+
 }
 

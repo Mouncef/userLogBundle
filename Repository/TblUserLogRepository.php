@@ -136,23 +136,23 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
              )
          ;*/
 
-/*        $subquery = $this->_em->createQueryBuilder()
-            ->select("DISTINCT u.terminal, DATE_FORMAT(u.date, '%m') AS mois, COUNT(u.action) AS nb")
-            ->from('OrcaUserLogBundle:TblUserLog','u')
-            ->where("u.action = 'Login_BO'")
-            ->andWhere("DATE_FORMAT(u.date, '%Y') = 2017")
-            ->groupBy( "mois, u.terminal")
-            ->getDQL()
-        ;
+        /*        $subquery = $this->_em->createQueryBuilder()
+                    ->select("DISTINCT u.terminal, DATE_FORMAT(u.date, '%m') AS mois, COUNT(u.action) AS nb")
+                    ->from('OrcaUserLogBundle:TblUserLog','u')
+                    ->where("u.action = 'Login_BO'")
+                    ->andWhere("DATE_FORMAT(u.date, '%Y') = 2017")
+                    ->groupBy( "mois, u.terminal")
+                    ->getDQL()
+                ;
 
-        $query = $this->_em->createQueryBuilder()
-            ->select("terminal, GROUP_CONCAT('nb') as nb")
-            ->from('('.$subquery.')','tab')
-//            ->addSelect('('.$subquery.') as tab')
-            ->groupBy('tab.terminal')
-            ->getQuery()
-            ->getResult()
-        ;*/
+                $query = $this->_em->createQueryBuilder()
+                    ->select("terminal, GROUP_CONCAT('nb') as nb")
+                    ->from('('.$subquery.')','tab')
+        //            ->addSelect('('.$subquery.') as tab')
+                    ->groupBy('tab.terminal')
+                    ->getQuery()
+                    ->getResult()
+                ;*/
 
         $sql = "SELECT terminal, GROUP_CONCAT(nb) AS nb
                 FROM(
@@ -210,6 +210,40 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->from('OrcaUserLogBundle:TblUserLog','l')
             ->where('l.errorCode not in (200,302)')
             ->orderBy('l.date ','DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $query;
+    }
+    public function getTopFive($month , $year)
+    {
+        $query = $this->_em->createQueryBuilder()
+            ->select('l.user','l.terminalType','COUNT(l.user) as nbr')
+            ->from('OrcaUserLogBundle:TblUserLog','l')
+            ->where('l.action = :login')
+            ->andWhere("DATE_FORMAT(l.date, '%m') = :month")
+            ->andWhere("DATE_FORMAT(l.date, '%Y') = :year")
+            ->groupBy('l.user' , 'l.terminalType')
+            ->orderBy('nbr','DESC')
+            ->setParameter('login' , 'Login_BO')
+            ->setParameter('month' , $month)
+            ->setParameter('year' , $year)
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $query;
+    }
+
+    public function getPays()
+    {
+        $query = $this->_em->createQueryBuilder()
+            ->select('l.codePays as code','l.pays as name','COUNT(l.codePays) as value')
+            ->from('OrcaUserLogBundle:TblUserLog','l')
+            ->where('l.pays != :localhost')
+            ->groupBy('l.codePays')
+            ->setParameter('localhost' ,  'Localhost')
             ->getQuery()
             ->getResult()
         ;

@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-4">
             <div class="dash-unit">
-                <div id="semicircledonut"></div>
+                <div id="TopFiveUsers"></div>
             </div>
         </div>
         <div class="col-md-4">
@@ -45,14 +45,33 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div id="basiccolumn"></div>
+            <div id = "tabs-1">
+                <ul>
+                    <li><a href = "#tabs-2">Graphe Terminal</a></li>
+                    <li><a href = "#tabs-3">Maps</a></li>
+                </ul>
+                <div id = "tabs-2" >
+                </div>
+                <div id = "tabs-3">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block javascript %}
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
+    <script src="http://code.highcharts.com/maps/modules/map.js"></script>
+    <script src="http://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="http://code.highcharts.com/mapdata/custom/world.js"></script>
+
     <script>
+        $(function() {
+            $( "#tabs-1" ).tabs();
+        });
         // Apply the theme
         Highcharts.setOptions(Highcharts.theme);
         /*--------------------------------------------------------------- Pie with legend -------------------------------------------------------------------------*/
@@ -97,52 +116,79 @@
         });
 
         /*--------------------------------------------------------------- Semi Circle Donut -------------------------------------------------------------------------*/
-        Highcharts.chart('semicircledonut', {
+
+        Highcharts.chart('TopFiveUsers', {
             chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: 0,
-                plotShadow: false,
-                height: 75 + '%'
+                type: 'bar',
+                height:'75%'
             },
             title: {
-                text: 'Nombre de connexions /terminal',
-                style: {"fontSize": "12px"},
-                align: 'center',
-                verticalAlign: 'middle',
-                y: -100
+                text: 'Top 5 Users Actifs',
+                style: {"fontSize": "12px"}
             },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.y}</b>' /*en pourcentage {point.percentage:.1f}%*/
-            },
-            plotOptions: {
-                pie: {
-                    dataLabels: {
-                        enabled: true,
-                        distance: -50,
-                        style: {
-                            fontWeight: 'bold',
-                            color: 'white'
-                        }
-                    },
-                    startAngle: -90,
-                    endAngle: 90,
-                    center: ['50%', '75%']
+            xAxis: {
+                categories: [
+                    {% for u in topFiveUsers %}
+                    'User : {{ u }}',
+                    {% endfor %}
+
+                ],
+                title: {
+                    text: null
                 }
             },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Nombre de connexion / Terminal',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' connexions'
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: 5,
+                y: 150,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                shadow: true
+            },
+            credits: {
+                enabled: false
+            },
             series: [{
-                type: 'pie',
-                name: 'Nombre de connexions',
-                innerSize: '50%',
+                name: 'Navigateur Web',
                 data: [
-                    {% for nb in nbCNXbyTerminal %}
-                        ['{{ nb.terminal }}', {{ nb.ct }}],
+                    {% for u in topNavigatorUsers %}
+                    {{ u }},
+                    {% endfor %}
+                ]
+            }, {
+                name: 'IOS',
+                data: [
+                    {% for u in topIosUsers %}
+                    {{ u }},
                     {% endfor %}
                 ]
             }]
         });
-
         /*--------------------------------------------------------------- Basic Column -------------------------------------------------------------------------*/
-        Highcharts.chart('basiccolumn', {
+        Highcharts.chart('tabs-2', {
             chart: {
                 type: 'column',
                 height: 30 + '%'
@@ -158,31 +204,31 @@
             xAxis: {
                 categories: [
                     {% for month in months %}
-                        {% if month.mois == 1 %}
-                            'Janvier',
-                        {% elseif month.mois == 2 %}
-                            'Fevrier',
-                        {% elseif month.mois == 3 %}
-                            'Mars',
-                        {% elseif month.mois == 4 %}
-                            'Avril',
-                        {% elseif month.mois == 5 %}
-                            'Mai',
-                        {% elseif month.mois == 6 %}
-                            'Juin',
-                        {% elseif month.mois == 7 %}
-                            'Juillet',
-                        {% elseif month.mois == 8 %}
-                            'Août',
-                        {% elseif month.mois == 9 %}
-                            'Septembre',
-                        {% elseif month.mois == 10 %}
-                            'October',
-                        {% elseif month.mois == 11 %}
-                            'Novembre',
-                        {% elseif month.mois == 12 %}
-                            'Decembre',
-                        {% endif %}
+                    {% if month.mois == 1 %}
+                    'Janvier',
+                    {% elseif month.mois == 2 %}
+                    'Fevrier',
+                    {% elseif month.mois == 3 %}
+                    'Mars',
+                    {% elseif month.mois == 4 %}
+                    'Avril',
+                    {% elseif month.mois == 5 %}
+                    'Mai',
+                    {% elseif month.mois == 6 %}
+                    'Juin',
+                    {% elseif month.mois == 7 %}
+                    'Juillet',
+                    {% elseif month.mois == 8 %}
+                    'Août',
+                    {% elseif month.mois == 9 %}
+                    'Septembre',
+                    {% elseif month.mois == 10 %}
+                    'October',
+                    {% elseif month.mois == 11 %}
+                    'Novembre',
+                    {% elseif month.mois == 12 %}
+                    'Decembre',
+                    {% endif %}
                     {% endfor %}
                 ],
                 crosshair: true
@@ -219,6 +265,109 @@
             ]
         });
 
+        // Load the data from a Google Spreadsheet
+        // https://docs.google.com/a/highsoft.com/spreadsheet/pub?hl=en_GB&hl=en_GB&key=0AoIaUO7wH1HwdFJHaFI4eUJDYlVna3k5TlpuXzZubHc&output=html
+        Highcharts.data({
 
+            googleSpreadsheetKey: '0AoIaUO7wH1HwdFJHaFI4eUJDYlVna3k5TlpuXzZubHc',
+
+            // custom handler when the spreadsheet is parsed
+            parsed: function (columns) {
+
+                // Read the columns into the data array
+                var data = [
+                    {% for p in pays %}
+                    {
+                        name: '{{ p.name }}',
+                        code: '{{ p.code }}',
+                        value: {{ p.value }}
+                    },
+                    {% endfor %}
+                ];
+                console.log(data);
+
+                // Initiate the chart
+                Highcharts.mapChart('tabs-3', {
+                    chart: {
+                        borderWidth: 1
+                    },
+
+                    colors: ['rgba(19,64,117,0.05)', 'rgba(19,64,117,0.2)', 'rgba(19,64,117,0.4)',
+                        'rgba(19,64,117,0.5)', 'rgba(19,64,117,0.6)', 'rgba(19,64,117,0.8)', 'rgba(19,64,117,1)'],
+
+                    title: {
+                        text: 'Répartition des Utilisateurs dans le Monde',
+                        style: {"fontSize": "12px"}
+                    },
+
+                    mapNavigation: {
+                        enabled: true
+                    },
+
+                    legend: {
+                        title: {
+                            text: 'Nombre d\'utilisateurs par pays',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                            }
+                        },
+                        align: 'left',
+                        verticalAlign: 'bottom',
+                        floating: true,
+                        layout: 'vertical',
+                        valueDecimals: 0,
+                        backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || 'rgba(255, 255, 255, 0.85)',
+                        symbolRadius: 0,
+                        symbolHeight: 14
+                    },
+
+                    colorAxis: {
+                        dataClasses: [{
+                            to: 3
+                        }, {
+                            from: 3,
+                            to: 10
+                        }, {
+                            from: 10,
+                            to: 30
+                        }, {
+                            from: 30,
+                            to: 100
+                        }, {
+                            from: 100,
+                            to: 300
+                        }, {
+                            from: 300,
+                            to: 1000
+                        }, {
+                            from: 1000
+                        }]
+                    },
+
+                    series: [{
+                        data: data,
+                        mapData: Highcharts.maps['custom/world'],
+                        joinBy: ['iso-a2', 'code'],
+                        animation: true,
+                        name: 'Répartition des utilistateur',
+                        states: {
+                            hover: {
+                                color: '#a4edba'
+                            }
+                        },
+                        tooltip: {
+                            valueSuffix: ''
+                        },
+                        shadow: false
+                    }]
+                });
+            },
+            error: function () {
+                $('#tabs-3').html('<div class="loading">' +
+                    '<i class="icon-frown icon-large"></i> ' +
+                    'Error loading data from Google Spreadsheets' +
+                    '</div>');
+            }
+        });
     </script>
 {% endblock %}

@@ -28,7 +28,7 @@
                         <th>Terminals</th>
                     </tr>
                     </thead>
-                    {#<tfoot>
+                    <tfoot>
                     <tr>
                         <th>Utilisateur</th>
                         <th>Nbr connexion</th>
@@ -36,7 +36,7 @@
                         <th>Dernière Cnx</th>
                         <th>Terminals</th>
                     </tr>
-                    </tfoot>#}
+                    </tfoot>
                     <tbody>
                     {% for connexion in connexions %}
                         <tr>
@@ -46,6 +46,7 @@
                             <td>{{ connexion.last_conn }}</td>
                             <td>{{ connexion.ters }}</td>
                         </tr>
+
                     {% endfor %}
                     </tbody>
                 </table>
@@ -59,8 +60,7 @@
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#example').DataTable({
+        var table = $('#example').DataTable({
                 "paging": true,
                 "lengthChange": true,
                 "searching": true,
@@ -88,6 +88,22 @@
                     }
                 }
             });
-        } );
+            $(document).ready(function() {
+                $('#example tfoot th').each( function () {
+                    var title = $(this).text();
+                    $(this).html( '<input type="text" placeholder="'+title+'" />' );
+                } );
+                // Apply the search
+                table.columns().every( function () {
+                    var that = this;
+
+                    $( 'input', this.footer() ).on( 'keyup change', function () {
+                        if ( that.search() !== this.value ) {
+                            that
+                                .search( this.value )
+                                .draw();
+                        }
+                    } );
+                } )});
     </script>
 {% endblock %}

@@ -12,10 +12,13 @@
     <link rel="stylesheet" href="{{ asset('bundles/orcauserlog/css/main.css') }}">
     <link rel="stylesheet" href="{{ asset('bundles/orcauserlog/css/font-style.css') }}">
     <link rel="stylesheet" href="{{ asset('bundles/orcauserlog/css/flexslider.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/orcauserlog/css/jquery-ui.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/orcauserlog/css/tabs.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
 
 
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="{{ asset('bundles/orcauserlog/js/jquery-ui.js') }}"></script>
     <style type="text/css">
         body {
             padding-top: 60px;
@@ -70,8 +73,8 @@
 </head>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 {#<script type="text/javascript">#}
-    {#google.load("visualization", "1", {packages: ["corechart", 'table', 'treemap', 'gauge']});#}
-    {#google.load('jquery', '1.6.0');#}
+{#google.load("visualization", "1", {packages: ["corechart", 'table', 'treemap', 'gauge']});#}
+{#google.load('jquery', '1.6.0');#}
 {#</script>#}
 <body>
 <div class="navbar-nav navbar-inverse navbar-fixed-top">
@@ -104,7 +107,8 @@
 </div>
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
+
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    {% block javascript %}{% endblock %}
+{% block javascript %}{% endblock %}
 </body>
 </html>
