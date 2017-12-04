@@ -242,9 +242,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->select('l.codePays as code','l.pays as name','COUNT(l.codePays) as value')
             ->from('OrcaUserLogBundle:TblUserLog','l')
             ->where('l.pays != :localhost')
-            ->andWhere('l.action = Login_BO')
+            ->andWhere('l.action = :login')
             ->groupBy('l.codePays')
             ->setParameter('localhost' ,  'Localhost')
+            ->setParameter('login' ,  'Login_BO')
             ->getQuery()
             ->getResult()
         ;
