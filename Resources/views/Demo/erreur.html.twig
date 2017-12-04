@@ -45,7 +45,10 @@
                     <tbody>
                     {% for error in errors %}
                         <tr>
-                            <td>{{ error.date|date('d-m-Y H:i') }}</td>
+                            <td>
+                                <span class="hide">{{ error.date|date('YmdHis') }}</span>
+                                {{ error.date|date('d-m-Y H:i') }}
+                            </td>
                             {#<td>
                                 {% set array = error.action|split(':') %}
 
@@ -88,6 +91,9 @@
             "info": true,
             "autoWidth": true,
             "order": [0,'desc'],
+//            "ColumnDefs": [
+//                { "orderData": 0, "targets": [0] }
+//            ],
             "bfilter":true,
             "language": {
                 "sProcessing": "Traitement en cours...",

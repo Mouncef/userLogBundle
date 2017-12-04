@@ -35,11 +35,14 @@ class DashboardController extends Controller
         $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($year);
         $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFive($month,$year);
         $pays=$em->getRepository('OrcaUserLogBundle:TblUserLog')->getPays();
+
+
         $users = $ios = $navigator= array();
         $index  =0;
         $found = false;
         //for($i = 0 ; $i<5 ; $i++)$users[$i]['name']= $topfiveUsers[$i]['user'];
-        for($i = 0 ; $i< 9 ; $i++){
+
+        for($i = 0 ; $i< count($topfiveUsers) ; $i++){
             if(!in_array($topfiveUsers[$i]['user'] , $users)){
                 $users[$index++] = $topfiveUsers[$i]['user'];
                 if($topfiveUsers[$i]['terminalType'] == 'Navigateur Web'){
