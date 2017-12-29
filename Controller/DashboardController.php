@@ -137,7 +137,7 @@ class DashboardController extends Controller
 
         $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProccessList();
         $response = array(
-            "draw"=> 1,
+            "draw"=> $request->get('draw',1),
             "recordsTotal"=> count($data),
             "recordsFiltered"=> count($data),
             "data"=>$data

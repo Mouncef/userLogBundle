@@ -15,6 +15,20 @@
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
             color: #FFF !important;
         }
+        span[data-active="0"]{
+            background: transparent;
+            border-radius:10%;
+            padding: 7px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        span[data-active="1"]{
+            background: #cdcbcc;
+            border-radius:10%;
+            padding: 7px;
+            font-size: 12px;
+            cursor: pointer;
+        }
     </style>
 
     <div class="row">
@@ -24,7 +38,8 @@
                     <thead>
                     <tr>
                         <th>Timer (S)</th>
-                        <th><input id="timerDataTable" type="number" value="15" minlength="1"></th>
+                        <th><input id="timerDataTable" type="number" value="15" minlength="5"></th>
+                        <th colspan="2"><span id="ResumeAutoRefresh" data-active="0">Resume auto-refresh</span></th>
                     </tr>
                     <tr>
                         <th>Id</th>
@@ -102,7 +117,8 @@
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script>
-        var TimerDataTable = setInterval(reDrawProccesListDataTable,15000)
+        var TimerDataTable = null;//setInterval(reDrawProccesListDataTable,15000)
+        var ResumeAutoRefresh = 0;
         var ProccesListDataTable = $('#example').DataTable({
             "paging": true,
             "ajax":"{{ path('dashboard_ajaxproccesslist') }}",
@@ -130,6 +146,8 @@
             "targets": 7,
             "data": "Info",
             "render": function ( data, type, row, meta ) {
+                if(data==null || data=='')
+                    return '';
                 if (data.length<=20)
                     return data;
                 else
@@ -180,21 +198,37 @@
 
                 });
             });
+            $('#ResumeAutoRefresh').on('click',function () {
+                ResumeAutoRefresh = ResumeAutoRefresh==1 ? 0 : 1;
+                if(ResumeAutoRefresh==1)
+                    liveTimerDataTable($('#timerDataTable').val());
+                else
+                    killTimerDataTable();
+                $(this).attr('data-active',ResumeAutoRefresh);
+
+            });
             $('#timerDataTable').on('change',function () {
+                if($(this).val()<5){
+                    $(this).val(5);
+                }
                 console.log($(this).val());
+                killTimerDataTable();
                 liveTimerDataTable($(this).val());
             })
         });
         function reDrawProccesListDataTable(){
             ProccesListDataTable.draw();
+            //ProccesListDataTable.api().ajax.reload(null, false);
         }
         function killTimerDataTable() {
             clearInterval(TimerDataTable);
         }
         function liveTimerDataTable($s){
-            killTimerDataTable()
-            var $interval = $s*1000;
-            TimerDataTable = setInterval(reDrawProccesListDataTable,$interval);
+            console.log(ResumeAutoRefresh);
+            if(ResumeAutoRefresh==1) {
+                var $interval = $s * 1000;
+                TimerDataTable = setInterval(reDrawProccesListDataTable, $interval);
+            }
         }
     </script>
 {% endblock %}
