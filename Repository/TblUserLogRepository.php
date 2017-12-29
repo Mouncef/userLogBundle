@@ -252,4 +252,25 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         return $query;
     }
+
+    public function getProccessList()
+    {
+        $sql = "SHOW FULL PROCESSLIST";
+
+        $rsm = new ResultSetMapping();
+
+        $rsm->addScalarResult('Id', 'Id');
+        $rsm->addScalarResult('User', 'User');
+        $rsm->addScalarResult('Host', 'Host');
+        $rsm->addScalarResult('db', 'db');
+        $rsm->addScalarResult('Command', 'Command');
+        $rsm->addScalarResult('Time', 'Time');
+        $rsm->addScalarResult('State', 'State');
+        $rsm->addScalarResult('Info', 'Info');
+        $rsm->addScalarResult('Progress', 'Progress');
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+
+        return $query->getResult();
+    }
+
 }

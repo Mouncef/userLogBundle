@@ -10,7 +10,9 @@ namespace Orca\UserLogBundle\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class DashboardController extends Controller
@@ -112,5 +114,34 @@ class DashboardController extends Controller
             'errors'        => $errors,
             'host'          => $host
         ]);
+    }
+
+
+
+    public function proccesslistAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProccessList();
+
+        return $this->render('OrcaUserLogBundle:Demo:proccesslist.html.twig', [
+            'data'        => $data
+            ]);
+    }
+
+    public function AjaxproccesslistAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProccessList();
+        $response = array(
+            "draw"=> 1,
+            "recordsTotal"=> count($data),
+            "recordsFiltered"=> count($data),
+            "data"=>$data
+        );
+        return new Response(json_encode($response), 200, ['Content-Type' => 'application/json']);
     }
 }
