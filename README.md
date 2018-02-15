@@ -8,10 +8,14 @@ Introduction
 Ce bundle requiert l'installation des bundles : 
 - [MobileDetectBundle](https://github.com/suncat2000/MobileDetectBundle)
 - [DoctrineExtensions](https://github.com/beberlei/DoctrineExtensions)
+- [GeoIP2-php](https://github.com/maxmind/GeoIP2-php)
 
 Ce bundle à pour finalité de tracker les actions des utilisateurs notamment : 
 - Les Login et les logout.
 - Les requêtes émisent. 
+## Configuration Obligatoire*
+
+	- Il faut unzipé le fichier "GeoLite2-City" dans vendor\Orcaformation\Orca\UserLogBundle, afin d'avoir le fichier sous le nom **GeoLite2-City.mmdb**
 
 ## Documentation
 
