@@ -63,12 +63,17 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             $userLog->setVille('Localhost');
             $userLog->setCodePays('Localhost');
         } else {
-            $url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
-            $result = file_get_contents($url);
-            $vars = json_decode($result, true);
-            $userLog->setPays($vars['geoplugin_countryName']);
+            $geoIPORCA = new GeoIPOrca();
+            $vars = $geoIPORCA->getInfoIP();
+            //$url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
+            //$result = file_get_contents($url);
+            //$vars = json_decode($result, true);
+/*            $userLog->setPays($vars['geoplugin_countryName']);
             $userLog->setVille($vars['geoplugin_city']);
-            $userLog->setCodePays($vars['geoplugin_countryCode']);
+            $userLog->setCodePays($vars['geoplugin_countryCode']);*/
+            $userLog->setPays($vars['country']);
+            $userLog->setVille($vars['city']);
+            $userLog->setCodePays($vars['isoCode']);
         }
 
 

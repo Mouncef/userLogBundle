@@ -2,7 +2,11 @@
   "name": "Orcaformation",
   "type": "symfony-bundle",
   "description": "Bundle pour la gestion des log d'actions des utilisateurs",
-  "keywords": [ "log", "orca" ],
+  "version": "dev-master",
+  "keywords": [
+    "log",
+    "orca"
+  ],
   "homepage": "https://github.com/orcaformation/userLogBundle",
   "license": "Reserved",
   "authors": [
@@ -11,14 +15,20 @@
       "email": "mzaghrat@orcaformation.fr"
     }
   ],
-  "autoload" : {
-        "psr-0" : {
-            "Orca\\UserLogBundle" : ""
-        }
-    },  
-  "target-dir" : "Orca/UserLogBundle",
+  "autoload": {
+    "psr-0": {
+      "Orca\\UserLogBundle": ""
+    }
+  },
+  "target-dir": "Orca/UserLogBundle",
   "require": {
     "suncat/mobile-detect-bundle": "1.0.*",
-    "beberlei/DoctrineExtensions": "*"
+    "beberlei/DoctrineExtensions": "*",
+    "geoip2/geoip2": "~2.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.2"
+    }
   }
 }

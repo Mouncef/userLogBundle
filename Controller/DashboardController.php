@@ -9,6 +9,7 @@
 namespace Orca\UserLogBundle\Controller;
 
 
+use Orca\UserLogBundle\DB\GeoIPOrca;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +18,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DashboardController extends Controller
 {
-    public function indexAction()
+    public function indexAction(Request $request)
     {
+
+        $date = new \DateTime('now');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d'));
+        $end = $request->get('end',$startEnd->format('Y-m-d'));
         $date = new \DateTime('now');
         $day = date_format($date, 'd');
         $month = date_format($date, 'm');
@@ -27,17 +34,24 @@ class DashboardController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $nbCNXByTerminalType = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTypeTerminal($month, $year);
-        $nbCNXByTerminal = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConexionByTerminal($month, $year);
+        //$nbCNXByTerminalType = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTypeTerminal($month, $year);
+       // $nbCNXByTerminal = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConexionByTerminal($month, $year);
         $nbCNXByDay = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByDay($day, $month, $year);
         $nbErrorByDay = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorByDay($day, $month, $year);
-        $nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByMonth($month, $year);
-        $nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByMonth($month, $year);
+        //$nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByMonth($month, $year);
+        //$nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByMonth($month, $year);
         $months = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getMonths($year);
         $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($year);
         $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFive($month,$year);
         $pays=$em->getRepository('OrcaUserLogBundle:TblUserLog')->getPays();
-
+        /**
+         * getByRange
+         */
+        $nbCNXByTerminalType = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTypeTerminalRange($start, $end);
+        $nbCNXByTerminal = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConexionByTerminalRange($start, $end);
+        $nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByRange($start, $end);
+        $nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByRange($start, $end);
+        $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFiveRange($start,$end);
 
         $users = $ios = $navigator= array();
         $index  =0;
