@@ -93,6 +93,7 @@ class GeoIPOrca
             }
 
         } catch (\Exception $e) {
+            echo $e->getMessage();die;
             $infoReturn = null;
         }
 
