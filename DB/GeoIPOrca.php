@@ -54,12 +54,12 @@ class GeoIPOrca
         }
     }
 
-    function getInfoIP($ip){
+    function getInfoIP(){
         $get_client_ip = $this->GetClientIP(true);
         //$record = $reader->city('128.101.101.101');
         $infoReturn = [];
         try {
-            $data_geo = $this->reader->city($ip);
+            $data_geo = $this->reader->city($get_client_ip);
             $name = $data_geo->country->name;
             $isoCode = $data_geo->country->isoCode;
             //$mostSpecificSubdivision = $data_geo->mostSpecificSubdivision->name;
