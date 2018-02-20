@@ -21,6 +21,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
 use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
 use Symfony\Component\Routing\Router;
+use Orca\UserLogBundle\DB\GeoIPOrca;
+
 
 
 class LogoutSuccessHandler implements LogoutSuccessHandlerInterface

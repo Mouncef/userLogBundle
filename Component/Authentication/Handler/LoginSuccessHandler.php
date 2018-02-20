@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
+use Orca\UserLogBundle\DB\GeoIPOrca;
+
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
