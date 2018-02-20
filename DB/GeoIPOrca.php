@@ -60,6 +60,8 @@ class GeoIPOrca
         $infoReturn = [];
         try {
             $data_geo = $this->reader->city($get_client_ip);
+            var_dump($data_geo);
+            die;
             $name = $data_geo->country->name;
             $isoCode = $data_geo->country->isoCode;
             //$mostSpecificSubdivision = $data_geo->mostSpecificSubdivision->name;
