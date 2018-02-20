@@ -60,8 +60,8 @@ class GeoIPOrca
         $infoReturn = [];
         try {
             $data_geo = $this->reader->city($get_client_ip);
-            var_dump($data_geo);
-            die;
+            //var_dump($data_geo);
+            //die;
             $name = $data_geo->country->name;
             $isoCode = $data_geo->country->isoCode;
             //$mostSpecificSubdivision = $data_geo->mostSpecificSubdivision->name;
@@ -84,18 +84,18 @@ class GeoIPOrca
                 }
                 $info = "Country: " . $addr . " | Region: " . $addr2 . " | City: " . $addr3;
                 $data = $addr3;
-                $infoReturn = [
-                    'country'=>$name,
-                    'isoCode'=>$isoCode,
-                    'city'=>$data,
-                    'latitude'=>$latitude,
-                    'longitude'=>$longitude
-                ];
-
             }
+            $infoReturn = [
+                'country'=>$name,
+                'isoCode'=>$isoCode,
+                'city'=>$data,
+                'latitude'=>$latitude,
+                'longitude'=>$longitude
+            ];
+
 
         } catch (\Exception $e) {
-            echo $e->getMessage();die;
+            echo $e->getMessage();//die;
             $infoReturn = null;
         }
 
