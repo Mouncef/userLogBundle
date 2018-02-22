@@ -3,8 +3,6 @@
 {% block head %}
     <style type="text/css">
         html,body{
-            border:none; padding:0; margin:0;
-            background:#FFFFFF;
             color:#202020;
         }
         body{
@@ -23,7 +21,7 @@
             border-radius:0.3em;
             transition:all 0.3s;
             box-sizing:border-box;
-            width:8em; height:3em;
+            width:16em; height:3em;
             line-height:2.7em;
             cursor:pointer;
             box-shadow: 0 0 0 rgba(0,0,0,0.1), inset 0 0 0 rgba(0,0,0,0.1);
@@ -37,14 +35,14 @@
             color:#FFFFFF;
         }
         #startStopBtn:before{
-            content:"Start";
+            content:"Test Connection Speed";
         }
         #startStopBtn.running:before{
-            content:"Abort";
+            content:"Stop Testing";
         }
         #test{
             margin-top:2em;
-            margin-bottom:12em;
+            margin-bottom:1em;
         }
         div.testArea{
             display:inline-block;
@@ -220,7 +218,6 @@
     <div class="row">
         <div class="col-md-12">
             <div class="dash-unit" style="padding: 5px;">
-                <h3>Speed Test</h3>
                 <div id="startStopBtn" onclick="startStop()"></div>
                 <div id="test">
                     <div class="testGroup">
@@ -252,10 +249,10 @@
                         </div>
                     </div>
                     <div id="ipArea">
-                        IP Address: <span id="ip"></span>
+                        Your IP Address: <span id="ip"></span>
                     </div>
                 </div>
-                <a href="https://github.com/adolfintel/speedtest">Source code</a>
+                {#<a href="https://github.com/adolfintel/speedtest">Source code</a>#}
                 <script type="text/javascript">setTimeout(initUI,100);</script>
             </div>
         </div>
