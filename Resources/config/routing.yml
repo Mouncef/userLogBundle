@@ -21,9 +21,9 @@ dashboard_connexion:
     path:     /connexions
     defaults: { _controller: OrcaUserLogBundle:Dashboard:connexion }
 
-dashboard_erreur:
-    path:     /erreurs
-    defaults: { _controller: OrcaUserLogBundle:Dashboard:erreur }
+dashboard_alerte:
+    path:     /alertes
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:alerte }
 
 dashboard_processlist:
     path:     /processlist

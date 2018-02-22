@@ -127,7 +127,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function erreurAction(Request $request)
+    public function alerteAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();

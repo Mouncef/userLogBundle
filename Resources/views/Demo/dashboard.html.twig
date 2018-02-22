@@ -34,7 +34,7 @@
 
                     <p>
                         <b>{% for nb in nbErrorbyDay %}<bad>{{ nb.ct }}</bad>{% endfor %}</b>
-                        | Erreur pour Ajourd'hui
+                        | Alerte(s) pour Ajourd'hui
                     </p>
                     <br>
                     <hr>
@@ -46,7 +46,7 @@
 
                     <p>
                         <b>{% for nb in nbErrorbyMonth %}<bad>{{ nb.ct }}</bad>{% endfor %}</b>
-                        | Erreur pour ce mois
+                        | Alerte(s) pour ce mois
                     </p>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Graphe Terminal</a></li>
-                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Maps</a></li>
+                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Map</a></li>
                 </ul>
 
                 <!-- Tab panes -->
