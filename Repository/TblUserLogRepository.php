@@ -116,29 +116,6 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
     }
     public function getNbConnexionByTerminalAndByMonth($year)
     {
-        /* $query = $this->_em->createQuery(
-             "SELECT terminal, GROUP_CONCAT('nb') AS nb FROM SELECT DISTINCT u.terminal, DATE_FORMAT(u.date, '%m') AS mois, COUNT(u.action) AS nb FROM OrcaUserLogBundle:TblUserLog u WHERE u.action = Login_BO AND DATE_FORMAT(u.date, '%Y') = 2017 GROUP BY u.terminal, DATE_FORMAT(u.date, '%m') tab GROUP BY tab.terminal"
-             )
-         ;*/
-
-        /*        $subquery = $this->_em->createQueryBuilder()
-                    ->select("DISTINCT u.terminal, DATE_FORMAT(u.date, '%m') AS mois, COUNT(u.action) AS nb")
-                    ->from('OrcaUserLogBundle:TblUserLog','u')
-                    ->where("u.action = 'Login_BO'")
-                    ->andWhere("DATE_FORMAT(u.date, '%Y') = 2017")
-                    ->groupBy( "mois, u.terminal")
-                    ->getDQL()
-                ;
-
-                $query = $this->_em->createQueryBuilder()
-                    ->select("terminal, GROUP_CONCAT('nb') as nb")
-                    ->from('('.$subquery.')','tab')
-        //            ->addSelect('('.$subquery.') as tab')
-                    ->groupBy('tab.terminal')
-                    ->getQuery()
-                    ->getResult()
-                ;*/
-
         $sql = "SELECT terminal, GROUP_CONCAT(nb) AS nb
                 FROM(
                 SELECT DISTINCT u.`terminal`,DATE_FORMAT(u.`date`, \"%m\") AS mois, COUNT(u.action) AS nb
@@ -189,6 +166,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->from('OrcaUserLogBundle:TblUserLog', 'l')
             ->where('l.errorCode not in (200,302)')
             ->orderBy('l.date ', 'DESC')
+            ->setMaxResults(100)
             ->getQuery()
             ->getResult();
 
@@ -227,7 +205,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         return $query;
     }
-    public function getProccessList()
+    public function getProcessList()
     {
         $sql = "SHOW FULL PROCESSLIST";
 
@@ -246,6 +224,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getResult();
     }
+
     /**
      * Get Stats By Range of Dates
      */
@@ -274,6 +253,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere("u.date < :end")
             ->setParameters(['var' => 'Login_BO', 'start' => $start, 'end' => $end])
             ->getQuery()
+            //->getDQL();
             ->getResult();
 
         return $query;
@@ -326,6 +306,17 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         return $query;
     }
+    public function getYearsOfCNX()
+    {
+        $sql = "SELECT DISTINCT DATE_FORMAT(u.`date`, \"%Y\") as annees FROM tbl_user_log u
+                WHERE u.action = 'Login_BO'
+                ORDER BY annees DESC
+                ";
 
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('annees', 'year');
+        $query = $this->_em->createNativeQuery($sql, $rsm);
 
+        return $query->getResult();
+    }
 }

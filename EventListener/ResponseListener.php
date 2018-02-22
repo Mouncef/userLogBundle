@@ -42,6 +42,7 @@ class ResponseListener
         //Get Uri
         $uri = $event->getRequest()->getRequestUri();
 
+
         // Get Ip
         $ip = $request->getClientIp();
 
@@ -85,6 +86,10 @@ class ResponseListener
 //                    {
 //                        $userLog->setUri('Uri trop longue !!');
 //                    } else {
+
+                    if (strpos($uri,"processlist")!= false){
+                        $uri = '/userLogChart/processlist';
+                    }
                     $userLog->setUri($uri);
 //                    }
                     $userLog->setUser($user);

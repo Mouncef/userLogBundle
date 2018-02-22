@@ -25,10 +25,14 @@ dashboard_erreur:
     path:     /erreurs
     defaults: { _controller: OrcaUserLogBundle:Dashboard:erreur }
 
-dashboard_proccesslist:
-    path:     /proccesslist
-    defaults: { _controller: OrcaUserLogBundle:Dashboard:proccesslist }
+dashboard_processlist:
+    path:     /processlist
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:processlist }
 
-dashboard_ajaxproccesslist:
-    path:     /ajaxproccesslist
-    defaults: { _controller: OrcaUserLogBundle:Dashboard:Ajaxproccesslist }
+dashboard_ajaxprocesslist:
+    path:     /ajaxprocesslist
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:Ajaxprocesslist }
+
+dashboard_speedtest:
+    path:     /speedtest
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:speedtest }

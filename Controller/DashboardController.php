@@ -10,6 +10,7 @@ namespace Orca\UserLogBundle\Controller;
 
 
 use Orca\UserLogBundle\DB\GeoIPOrca;
+use Orca\UserLogBundle\Entity\TblUserLog;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,12 +25,17 @@ class DashboardController extends Controller
         $date = new \DateTime('now');
         $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
         $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
-        $start = $request->get('start',$startDate->format('Y-m-d'));
-        $end = $request->get('end',$startEnd->format('Y-m-d'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
         $date = new \DateTime('now');
         $day = date_format($date, 'd');
         $month = date_format($date, 'm');
         $year = date_format($date, 'Y');
+
+        $choosedYear = $request->get('year');
+        if (!$choosedYear){
+            $choosedYear = $year;
+        }
 
 
         $em = $this->getDoctrine()->getManager();
@@ -40,8 +46,8 @@ class DashboardController extends Controller
         $nbErrorByDay = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorByDay($day, $month, $year);
         //$nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByMonth($month, $year);
         //$nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByMonth($month, $year);
-        $months = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getMonths($year);
-        $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($year);
+        $months = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getMonths($choosedYear);
+        $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($choosedYear);
         $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFive($month,$year);
         $pays=$em->getRepository('OrcaUserLogBundle:TblUserLog')->getPays();
         /**
@@ -56,6 +62,9 @@ class DashboardController extends Controller
         $users = $ios = $navigator= array();
         $index  =0;
         $found = false;
+
+        $yearsOfCNX = $em->getRepository(TblUserLog::class)->getYearsOfCNX();
+
         //for($i = 0 ; $i<5 ; $i++)$users[$i]['name']= $topfiveUsers[$i]['user'];
 
         for($i = 0 ; $i< count($topfiveUsers) ; $i++){
@@ -98,7 +107,8 @@ class DashboardController extends Controller
             'topFiveUsers' => $users,
             'topIosUsers' => $ios,
             'topNavigatorUsers' => $navigator,
-            'pays' => $pays
+            'pays' => $pays,
+            'years' =>  $yearsOfCNX
         ]);
     }
 
@@ -130,32 +140,37 @@ class DashboardController extends Controller
         ]);
     }
 
-
-
-    public function proccesslistAction(Request $request)
+    public function processlistAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProccessList();
+        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProcessList();
+//        var_dump($data); die;
 
-        return $this->render('OrcaUserLogBundle:Demo:proccesslist.html.twig', [
+        return $this->render('OrcaUserLogBundle:Demo:processlist.html.twig', [
             'data'        => $data
             ]);
     }
 
-    public function AjaxproccesslistAction(Request $request)
+    public function AjaxprocesslistAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProccessList();
+        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProcessList();
         $response = array(
             "draw"=> $request->get('draw',1),
             "recordsTotal"=> count($data),
             "recordsFiltered"=> count($data),
             "data"=>$data
         );
+
         return new Response(json_encode($response), 200, ['Content-Type' => 'application/json']);
+    }
+
+    public function speedtestAction()
+    {
+        return $this->render('OrcaUserLogBundle:Demo:speedtest.html.twig');
     }
 }
