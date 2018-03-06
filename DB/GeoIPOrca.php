@@ -80,8 +80,8 @@ class GeoIPOrca
                 $addr3 = '';
                 if(is_array($jsondata )&& $jsondata ['status'] == "OK")
                 {
-                    $addr = $jsondata ['results'][0]['address_components'][4]['long_name'];
-                    $addr2 = $jsondata ['results'][0]['address_components'][4]['short_name'];
+                    //$addr = $jsondata ['results'][0]['address_components'][4]['long_name'];
+                    //$addr2 = $jsondata ['results'][0]['address_components'][4]['short_name'];
                     $addr3 = $jsondata ['results'][0]['address_components'][3]['long_name'];
                 }
                 //$info = "Country: " . $addr . " | Region: " . $addr2 . " | City: " . $addr3;
