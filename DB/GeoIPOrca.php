@@ -75,15 +75,17 @@ class GeoIPOrca
 
                 $data = @file_get_contents($url);
                 $jsondata = json_decode($data,true);
-
+                $addr = '';
+                $addr2 = '';
+                $addr3 = '';
                 if(is_array($jsondata )&& $jsondata ['status'] == "OK")
                 {
                     $addr = $jsondata ['results'][0]['address_components'][4]['long_name'];
                     $addr2 = $jsondata ['results'][0]['address_components'][4]['short_name'];
                     $addr3 = $jsondata ['results'][0]['address_components'][3]['long_name'];
                 }
-                $info = "Country: " . $addr . " | Region: " . $addr2 . " | City: " . $addr3;
-                $data = $addr3;
+                //$info = "Country: " . $addr . " | Region: " . $addr2 . " | City: " . $addr3;
+                $data = ($city) ?  $city : $addr3;
             }
             $infoReturn = [
                 'country'=>$name,
