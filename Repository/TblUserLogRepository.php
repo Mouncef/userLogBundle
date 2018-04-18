@@ -162,9 +162,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
     public function getErrors()
     {
         $query = $this->_em->createQueryBuilder()
-            ->select('l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode')
+            ->select('l.id','l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode','l.header','l.postParams','l.getParams')
             ->from('OrcaUserLogBundle:TblUserLog', 'l')
-            ->where('l.errorCode not in (200,302)')
+            ->where('l.errorCode not in (200,302,204)')
             ->orderBy('l.date ', 'DESC')
             ->setMaxResults(100)
             ->getQuery()

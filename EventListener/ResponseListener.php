@@ -38,6 +38,10 @@ class ResponseListener
         $em = $this->container->get('doctrine.orm.entity_manager');
         $terminalDetector = $this->container->get('mobile_detect.mobile_detector');
 
+        $header = $request->headers->all();
+        $postParameters = $request->request->all();
+        $getParameters = $request->query->all();
+
 
         //Get Uri
         $uri = $event->getRequest()->getRequestUri();
@@ -82,16 +86,12 @@ class ResponseListener
                         $action = "No Action !";
                     }
                     $userLog->setAction($action);
-//                    if (strlen($uri) > 250)
-//                    {
-//                        $userLog->setUri('Uri trop longue !!');
-//                    } else {
 
                     if (strpos($uri,"processlist")!= false){
                         $uri = '/userLogChart/processlist';
                     }
                     $userLog->setUri($uri);
-//                    }
+
                     $userLog->setUser($user);
                     $userLog->setIp($ip);
 
@@ -102,12 +102,6 @@ class ResponseListener
                     } else {
                         $geoIPORCA = new GeoIPOrca();
                         $vars = $geoIPORCA->getInfoIP();
-                        //$url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
-                        //$result = file_get_contents($url);
-                        //$vars = json_decode($result, true);
-                        /*            $userLog->setPays($vars['geoplugin_countryName']);
-                                    $userLog->setVille($vars['geoplugin_city']);
-                                    $userLog->setCodePays($vars['geoplugin_countryCode']);*/
                         $userLog->setPays($vars['country']);
                         $userLog->setVille($vars['city']);
                         $userLog->setCodePays($vars['isoCode']);
@@ -146,6 +140,10 @@ class ResponseListener
                     }
 
                     $userLog->setErrorCode($statusCode);
+
+                    $userLog->setHeader(json_encode($header));
+                    $userLog->setPostParams(json_encode($postParameters));
+                    $userLog->setGetParams(json_encode($getParameters));
 
                     $em->persist($userLog);
                     $em->flush();

@@ -104,6 +104,21 @@ class TblUserLog
     private $terminalType;
 
     /**
+     * @ORM\Column(name="header", type="text", nullable=true)
+     */
+    private $header;
+
+    /**
+     * @ORM\Column(name="post_params", type="text", nullable=true)
+     */
+    private $postParams;
+
+    /**
+     * @ORM\Column(name="get_params", type="text", nullable=true)
+     */
+    private $getParams;
+
+    /**
      * Get id
      *
      * @return int
@@ -128,8 +143,6 @@ class TblUserLog
     {
         $this->date = $date;
     }
-
-
 
     /**
      * @return int
@@ -307,7 +320,52 @@ class TblUserLog
         $this->codePays = $codePays;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
 
+    /**
+     * @param mixed $header
+     */
+    public function setHeader($header)
+    {
+        $this->header = $header;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getPostParams()
+    {
+        return $this->postParams;
+    }
+
+    /**
+     * @param mixed $postParams
+     */
+    public function setPostParams($postParams)
+    {
+        $this->postParams = $postParams;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGetParams()
+    {
+        return $this->getParams;
+    }
+
+    /**
+     * @param mixed $getParams
+     */
+    public function setGetParams($getParams)
+    {
+        $this->getParams = $getParams;
+    }
 }
 

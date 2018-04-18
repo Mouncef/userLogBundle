@@ -306,7 +306,7 @@ input[type=text], textarea {
 	height: 30px;
 	line-height: 18px;
 	padding: 0;
-	text-indent: 18px;
+	text-indent: 8px;
 	margin: 0 0 18px;
 }
 textarea {

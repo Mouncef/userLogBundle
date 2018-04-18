@@ -3,6 +3,7 @@ parameters:
 #    orca_user_log.component.authentication.handler.api_login_success_handler.class: Orca\UserLogBundle\Component\Authentication\Handler\ApiLoginSuccessHandler
     orca_user_log.component.authentication.handler.logout_success_handler.class: Orca\UserLogBundle\Component\Authentication\Handler\LogoutSuccessHandler
 
+    orca_user_log.twig.extension.vars_extension.class: Orca\UserLogBundle\Twig\Extension\VarsExtension
 
 services:
     orca_user_log.component.authentication.handler.login_success_handler:
@@ -22,3 +23,9 @@ services:
 #        arguments:  ['@lexik_jwt_authentication.jwt_manager', '@event_dispatcher', '@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector']
 #        tags:
 #            - { name: 'monolog.logger', channel: 'security' }
+
+    orca_user_log.twig.extension.vars_extension:
+        class:  '%orca_user_log.twig.extension.vars_extension.class%'
+        public: false
+        tags:
+          - { name: twig.extension }

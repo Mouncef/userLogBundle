@@ -16,6 +16,17 @@
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
             color: #FFF !important;
         }
+        tr.header
+        {
+            cursor:pointer;
+        }
+        .header .sign:after{
+            content:"+";
+            display:inline-block;
+        }
+        .header.expand .sign:after{
+            content:"-";
+        }
     </style>
 
     <div class="row">
@@ -26,6 +37,9 @@
                     <tr>
                         <th>Date</th>
                         <th>URL</th>
+                        <th>Header</th>
+                        <th>Post</th>
+                        <th>Get</th>
                         <th>Terminal</th>
                         <th>Zone</th>
                         <th>Utilisateur</th>
@@ -36,6 +50,9 @@
                     <tr>
                         <th>Date</th>
                         <th>URL</th>
+                        <th>Header</th>
+                        <th>Post</th>
+                        <th>Get</th>
                         <th>Terminal</th>
                         <th>Zone</th>
                         <th>Utilisateur</th>
@@ -45,17 +62,10 @@
                     <tbody>
                     {% for error in errors %}
                         <tr>
-                            <td>
+                            <td width="120px">
                                 <span class="hide">{{ error.date|date('YmdHis') }}</span>
                                 {{ error.date|date('d-m-Y H:i') }}
                             </td>
-                            {#<td>
-                                {% set array = error.action|split(':') %}
-
-                                {% for element in array %}
-                                    {{ element }}<br />
-                                {% endfor %}
-                            </td>#}
                             <td>
                                 <a href="https://{{ host }}/app_dev.php{{ error.uri }}" target="_blank">
                                     {% if error.uri|length > 100 %}
@@ -64,6 +74,102 @@
                                         {{ error.uri }}
                                     {% endif %}
                                 </a>
+                            </td>
+
+                            {% set headerValues = error.header|decode %}
+                            {% set postValues = error.postParams|decode %}
+                            {% set getValues = error.getParams|decode %}
+                            <td>
+                                {% if headerValues is not empty %}
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ error.id }}">Params</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modalHeader-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div id="accordionHeader-{{ error.id }}">
+                                                        {% for key, value in headerValues %}
+                                                            {% for v in value %}
+                                                                <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
+                                                                <div>
+                                                                    <p>
+                                                                        {{ v }}
+                                                                    </p>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    Vide
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if postValues is not empty %}
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-{{ error.id }}">Params</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modalPost-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div id="accordionPost-{{ error.id }}">
+                                                        {% for key, value in postValues %}
+                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
+                                                            <div>
+                                                                <p>
+                                                                    {{ value }}
+                                                                </p>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    Vide
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if getValues is not empty %}
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ error.id }}">Params</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modalGet-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div id="accordionGet-{{ error.id }}">
+                                                        {% for key, value in getValues %}
+                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
+                                                            <div>
+                                                                <p>
+                                                                    {{ value }}
+                                                                </p>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    Vide
+                                {% endif %}
                             </td>
                             <td>{{ error.terminalType }}</td>
                             <td>{{ error.ville }}</td>
@@ -77,6 +183,7 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block javascript %}
@@ -112,25 +219,43 @@
                     "sNext": "Suivant",
                     "sLast": "Dernier"
                 }
+            },
+            "fnDrawCallback":function () {
+                $( function() {
+                    {% for error in errors %}
+                        $( "#accordionHeader-{{ error.id }}" ).accordion({
+                            heightStyle: "content",
+                        });
+                        $( "#accordionPost-{{ error.id }}" ).accordion({
+                            heightStyle: "content",
+                        });
+                        $( "#accordionGet-{{ error.id }}" ).accordion({
+                            heightStyle: "content",
+                        });
+                    {% endfor %}
+                });
             }
         });
 
         $(document).ready(function() {
-            $('#example tfoot th').each( function () {
+            $('#example tfoot th').each(function () {
                 var title = $(this).text();
-                $(this).html( '<input type="text" placeholder="'+title+'" />' );
-            } );
+                $(this).html('<input type="text" placeholder="' + title + '" />');
+            });
+
             // Apply the search
-            table.columns().every( function () {
+            table.columns().every(function () {
                 var that = this;
 
-                $( 'input', this.footer() ).on( 'keyup change', function () {
-                    if ( that.search() !== this.value ) {
+                $('input', this.footer()).on('keyup change', function () {
+                    if (that.search() !== this.value) {
                         that
-                            .search( this.value )
+                            .search(this.value)
                             .draw();
                     }
-                } );
-            } )});
+                });
+            });
+
+        });
     </script>
 {% endblock %}
