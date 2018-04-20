@@ -159,12 +159,62 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getResult();
     }
+
+    public function getWsConnexions($mois)
+    {
+        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`,
+                (
+                SELECT COUNT(lo.`error_code`)
+                FROM `tbl_user_log` lo
+                WHERE lo.`error_code` NOT IN (200,302)
+                AND lo.`post_params`=l.`post_params`
+                ) AS nb_erreur
+                FROM `tbl_user_log` l 
+                WHERE l.`action` LIKE '%Ws%'
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
+                GROUP BY l.`post_params`
+                ORDER BY nb_connexion DESC";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('nb_connexion', 'nb_con');
+        $rsm->addScalarResult('nb_erreur', 'nb_err');
+        $rsm->addScalarResult('last_conn', 'last_conn');
+        $rsm->addScalarResult('terminals', 'ters');
+        $rsm->addScalarResult('header', 'header');
+        $rsm->addScalarResult('post_params', 'postParams');
+        $rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->_em->createNativeQuery($sql, $rsm)
+            ->setParameter('mois', $mois);
+
+        return $query->getResult();
+    }
+
+    public function getWsActions()
+    {
+        $query = $this->_em->createQueryBuilder()
+            ->select('l.id','l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode','l.header','l.postParams','l.getParams')
+            ->from('OrcaUserLogBundle:TblUserLog', 'l')
+            ->where('l.errorCode in (200,302)')
+            ->andWhere('l.action LIKE :action ')
+            ->andWhere('l.uri LIKE :uri ')
+            ->andWhere('l.user != 0 ')
+            ->setParameters(['action'=> 'Ws\\\%', 'uri' => '%/api/%'])
+            ->orderBy('l.date ', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $query;
+    }
+
     public function getErrors()
     {
         $query = $this->_em->createQueryBuilder()
             ->select('l.id','l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode','l.header','l.postParams','l.getParams')
             ->from('OrcaUserLogBundle:TblUserLog', 'l')
-            ->where('l.errorCode not in (200,302,204)')
+            ->where('l.errorCode not in (200,302)')
             ->orderBy('l.date ', 'DESC')
             ->setMaxResults(100)
             ->getQuery()

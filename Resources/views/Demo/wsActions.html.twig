@@ -36,27 +36,25 @@
                     <thead>
                     <tr>
                         <th>Date</th>
+                        <th>Utilisateur</th>
                         <th>URL</th>
                         <th>Header</th>
                         <th>Post</th>
                         <th>Get</th>
                         <th>Terminal</th>
                         <th>Zone</th>
-                        <th>Utilisateur</th>
-                        <th>Code Alerte</th>
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
                         <th>Date</th>
+                        <th>Utilisateur</th>
                         <th>URL</th>
                         <th>Header</th>
                         <th>Post</th>
                         <th>Get</th>
                         <th>Terminal</th>
                         <th>Zone</th>
-                        <th>Utilisateur</th>
-                        <th>Code Alerte</th>
                     </tr>
                     </tfoot>
                     <tbody>
@@ -66,6 +64,7 @@
                                 <span class="hide">{{ error.date|date('YmdHis') }}</span>
                                 {{ error.date|date('d-m-Y H:i') }}
                             </td>
+                            <td style="text-align: center">{{ error.user }}</td>
                             <td>
                                 <a href="http://{{ host }}/app_dev.php{{ error.uri }}" target="_blank">
                                     {% if error.uri|length > 100 %}
@@ -173,8 +172,6 @@
                             </td>
                             <td>{{ error.terminalType }}</td>
                             <td>{{ error.ville }}</td>
-                            <td>{{ error.user }}</td>
-                            <td>{{ error.errorCode }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -223,15 +220,15 @@
             "fnDrawCallback":function () {
                 $( function() {
                     {% for error in errors %}
-                        $( "#accordionHeader-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
-                        $( "#accordionPost-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
-                        $( "#accordionGet-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
+                    $( "#accordionHeader-{{ error.id }}" ).accordion({
+                        heightStyle: "content",
+                    });
+                    $( "#accordionPost-{{ error.id }}" ).accordion({
+                        heightStyle: "content",
+                    });
+                    $( "#accordionGet-{{ error.id }}" ).accordion({
+                        heightStyle: "content",
+                    });
                     {% endfor %}
                 });
             }

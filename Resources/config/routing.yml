@@ -21,6 +21,14 @@ dashboard_connexion:
     path:     /connexions
     defaults: { _controller: OrcaUserLogBundle:Dashboard:connexion }
 
+dashboard_ws_connexion:
+    path:     /wsConnexions
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:wsConnexion }
+
+dashboard_ws_actions:
+    path:     /wsActions
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:ws }
+
 dashboard_alerte:
     path:     /alertes
     defaults: { _controller: OrcaUserLogBundle:Dashboard:alerte }

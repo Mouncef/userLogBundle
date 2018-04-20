@@ -127,6 +127,34 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function wsConnexionAction()
+    {
+        $date = new \DateTime('now');
+
+        $month = date_format($date, 'm');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $wsConnexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsConnexions($month);
+
+        return $this->render('OrcaUserLogBundle:Demo:wsConnexion.html.twig', [
+            'connexions' => $wsConnexions
+        ]);
+    }
+
+    public function wsAction(Request $request) {
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions();
+
+        return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
+            'errors'        => $errors,
+            'host'          => $host
+        ]);
+    }
+
     public function alerteAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
