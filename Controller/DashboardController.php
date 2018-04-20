@@ -95,6 +95,7 @@ class DashboardController extends Controller
             }
             if($index ==4)break;
         }
+
         return $this->render('OrcaUserLogBundle:Demo:dashboard.html.twig',[
             'nbCNXbyTypeTerminal'       => $nbCNXByTerminalType,
             'nbCNXbyTerminal'           => $nbCNXByTerminal,
