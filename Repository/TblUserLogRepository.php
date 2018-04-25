@@ -191,9 +191,36 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getWsActions()
+    public function getWsActions($mois, $annee)
     {
-        $query = $this->_em->createQueryBuilder()
+
+        $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
+                FROM `tbl_user_log` l
+                WHERE l.`error_code` IN (200,302)
+                AND l.`action` LIKE :ws
+                AND l.`uri` LIKE :api
+                AND l.`user_id` != 0
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
+                ORDER BY l.`date` DESC";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('date', 'date');
+        $rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'uri');
+        $rsm->addScalarResult('terminal_type', 'terminalType');
+        $rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('error_code', 'errorCode');
+        $rsm->addScalarResult('header', 'header');
+        $rsm->addScalarResult('post_params', 'postParams');
+        $rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->_em->createNativeQuery($sql, $rsm)
+            ->setParameters(['mois' => $mois, 'ws'  =>  'Ws\\\%', 'api' =>  '%/api/%', 'annee' => $annee])
+        ;
+
+        /*$query = $this->_em->createQueryBuilder()
             ->select('l.id','l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode','l.header','l.postParams','l.getParams')
             ->from('OrcaUserLogBundle:TblUserLog', 'l')
             ->where('l.errorCode in (200,302)')
@@ -204,9 +231,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('l.date ', 'DESC')
             ->getQuery()
             ->getResult()
-        ;
+        ;*/
 
-        return $query;
+        return $query->getResult();
     }
 
     public function getErrors()

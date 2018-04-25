@@ -145,10 +145,15 @@ class DashboardController extends Controller
 
     public function wsAction(Request $request) {
 
+        $date = new \DateTime('now');
+        $month = date_format($date, 'm');
+        $year = date_format($date, 'Y');
+
+
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions();
+        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions($month, $year);
 
         return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
             'errors'        => $errors,
