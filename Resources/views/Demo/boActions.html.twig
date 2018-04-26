@@ -5,6 +5,9 @@
         tbody{
             color: #000;
         }
+        tbody tr {
+            font-size: 12px;
+        }
         .dataTables_length, .dataTables_filter, .dataTables_info{
             color: #FFF !important;
         }
@@ -32,62 +35,54 @@
                 <table id="example" class="display" cellspacing="0" width="100%" style="padding: 5px;">
                     <thead>
                     <tr>
+                        <th>Date</th>
                         <th>Utilisateur</th>
-                        <th>Nbr connexion</th>
-                        <th>Dernière Cnx</th>
-                        <th>Terminals</th>
+                        <th>URL</th>
                         <th>Header</th>
                         <th>Post</th>
                         <th>Get</th>
+                        <th>Terminal</th>
+                        <th>Zone</th>
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
+                        <th>Date</th>
                         <th>Utilisateur</th>
-                        <th>Nbr connexion</th>
-                        <th>Dernière Cnx</th>
-                        <th>Terminals</th>
+                        <th>URL</th>
                         <th>Header</th>
                         <th>Post</th>
                         <th>Get</th>
+                        <th>Terminal</th>
+                        <th>Zone</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for connexion in connexions %}
-                        {% set headerValues = connexion.header|decode %}
-                        {% set postValues = connexion.postParams|decode %}
-                        {% set getValues = connexion.getParams|decode %}
+                    {% for action in actions %}
                         <tr>
-                            <td>
-                                {% if connexion.getParams != "[]" %}
-
-                                    {% set getValues = connexion.getParams|decode %}
-                                    {% if getValues is not empty %}
-                                        {% for key, value in getValues %}
-                                            {% if key == 'login' %}
-                                                {{ value }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% else %}
-                                    {% set postValues = connexion.postParams|decode %}
-                                    {% if postValues is not empty %}
-                                        {% for key, value in postValues %}
-                                            {% if key == 'login' %}
-                                                {{ value }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endif %}
+                            <td width="120px">
+                                <span class="hide">{{ action.date|date('YmdHis') }}</span>
+                                {{ action.date|date('d-m-Y H:i') }}
                             </td>
-                            <td>{{ connexion.nb_con }}</td>
-                            <td>{{ connexion.last_conn }}</td>
-                            <td>{{ connexion.ters }}</td>
+                            <td style="text-align: center">{{ action.user }}</td>
+                            <td>
+                                <a href="http://{{ host }}/app_dev.php{{ action.uri }}" target="_blank">
+                                    {% if action.uri|length > 100 %}
+                                        {{ action.uri[:100] }} ...
+                                    {% else %}
+                                        {{ action.uri }}
+                                    {% endif %}
+                                </a>
+                            </td>
+
+                            {% set headerValues = action.header|decode %}
+                            {% set postValues = action.postParams|decode %}
+                            {% set getValues = action.getParams|decode %}
                             <td>
                                 {% if headerValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ connexion.id }}">Params</a>
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ action.id }}">Params</a>
                                     <!-- Modal -->
-                                    <div class="modal fade" id="modalHeader-{{ connexion.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                    <div class="modal fade" id="modalHeader-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
                                         <div class="modal-dialog modal-lg" role="document" style="width: 70%">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -95,7 +90,7 @@
                                                     <h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div id="accordionHeader-{{ connexion.id }}">
+                                                    <div id="accordionHeader-{{ action.id }}">
                                                         {% for key, value in headerValues %}
                                                             {% for v in value %}
                                                                 <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
@@ -117,9 +112,9 @@
                             </td>
                             <td>
                                 {% if postValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost2-{{ connexion.id }}">Params</a>
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-{{ action.id }}">Params</a>
                                     <!-- Modal -->
-                                    <div class="modal fade" id="modalPost2-{{ connexion.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                    <div class="modal fade" id="modalPost-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
                                         <div class="modal-dialog modal-lg" role="document" style="width: 70%">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -127,7 +122,7 @@
                                                     <h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div id="accordionPost-{{ connexion.id }}">
+                                                    <div id="accordionPost-{{ action.id }}">
                                                         {% for key, value in postValues %}
                                                             <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
                                                             <div>
@@ -147,9 +142,9 @@
                             </td>
                             <td>
                                 {% if getValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ connexion.id }}">Params</a>
+                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ action.id }}">Params</a>
                                     <!-- Modal -->
-                                    <div class="modal fade" id="modalGet-{{ connexion.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+                                    <div class="modal fade" id="modalGet-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
                                         <div class="modal-dialog modal-lg" role="document" style="width: 70%">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -157,7 +152,7 @@
                                                     <h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div id="accordionGet-{{ connexion.id }}">
+                                                    <div id="accordionGet-{{ action.id }}">
                                                         {% for key, value in getValues %}
                                                             <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
                                                             <div>
@@ -175,8 +170,9 @@
                                     Vide
                                 {% endif %}
                             </td>
+                            <td>{{ action.terminalType }}</td>
+                            <td>{{ action.ville }}</td>
                         </tr>
-
                     {% endfor %}
                     </tbody>
                 </table>
@@ -184,6 +180,7 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block javascript %}
@@ -197,7 +194,10 @@
             "ordering": true,
             "info": true,
             "autoWidth": true,
-            "order": [1,'desc'],
+            "order": [0,'desc'],
+//            "ColumnDefs": [
+//                { "orderData": 0, "targets": [0] }
+//            ],
             "bfilter":true,
             "language": {
                 "sProcessing": "Traitement en cours...",
@@ -219,36 +219,40 @@
             },
             "fnDrawCallback":function () {
                 $( function() {
-                    {% for connexion in connexions %}
-                    $( "#accordionHeader-{{ connexion.id }}" ).accordion({
+                    {% for action in actions %}
+                    $( "#accordionHeader-{{ action.id }}" ).accordion({
                         heightStyle: "content",
                     });
-                    $( "#accordionPost-{{ connexion.id }}" ).accordion({
+                    $( "#accordionPost-{{ action.id }}" ).accordion({
                         heightStyle: "content",
                     });
-                    $( "#accordionGet-{{ connexion.id }}" ).accordion({
+                    $( "#accordionGet-{{ action.id }}" ).accordion({
                         heightStyle: "content",
                     });
                     {% endfor %}
                 });
             }
         });
+
         $(document).ready(function() {
-            $('#example tfoot th').each( function () {
+            $('#example tfoot th').each(function () {
                 var title = $(this).text();
-                $(this).html( '<input type="text" placeholder="'+title+'" />' );
-            } );
+                $(this).html('<input type="text" placeholder="' + title + '" />');
+            });
+
             // Apply the search
-            table.columns().every( function () {
+            table.columns().every(function () {
                 var that = this;
 
-                $( 'input', this.footer() ).on( 'keyup change', function () {
-                    if ( that.search() !== this.value ) {
+                $('input', this.footer()).on('keyup change', function () {
+                    if (that.search() !== this.value) {
                         that
-                            .search( this.value )
+                            .search(this.value)
                             .draw();
                     }
-                } );
-            } )});
+                });
+            });
+
+        });
     </script>
 {% endblock %}

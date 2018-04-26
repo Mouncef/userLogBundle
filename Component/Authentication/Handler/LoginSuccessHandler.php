@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Security;
@@ -67,12 +68,6 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         } else {
             $geoIPORCA = new GeoIPOrca();
             $vars = $geoIPORCA->getInfoIP();
-            //$url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
-            //$result = file_get_contents($url);
-            //$vars = json_decode($result, true);
-/*            $userLog->setPays($vars['geoplugin_countryName']);
-            $userLog->setVille($vars['geoplugin_city']);
-            $userLog->setCodePays($vars['geoplugin_countryCode']);*/
             $userLog->setPays($vars['country']);
             $userLog->setVille($vars['city']);
             $userLog->setCodePays($vars['isoCode']);
@@ -116,6 +111,9 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         $em = $this->em;
         $em->persist($userLog);
         $em->flush();
+
+        $session = new Session();
+        $session->set('connected', $user);
 
         $response = new RedirectResponse($this->router->generate('userLog_homepage_login'));
 

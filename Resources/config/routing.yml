@@ -25,6 +25,10 @@ dashboard_ws_connexion:
     path:     /wsConnexions
     defaults: { _controller: OrcaUserLogBundle:Dashboard:wsConnexion }
 
+dashboard_bo_actions:
+    path:     /boActions
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:bo }
+
 dashboard_ws_actions:
     path:     /wsActions
     defaults: { _controller: OrcaUserLogBundle:Dashboard:ws }

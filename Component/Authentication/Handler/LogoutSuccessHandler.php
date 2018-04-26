@@ -46,12 +46,17 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
     public function onLogoutSuccess(Request $request)
     {
 
-        $user = $this->storage->getToken()->getUser();
+        if(is_null($this->storage->getToken())){
+            $user = $request->getSession()->get('connected')->getUserId();
+        } else {
+            $user = $this->storage->getToken()->getUser()->getUserId();
+        }
+
         $ip = $request->getClientIp();
 
         $userLog = new TblUserLog();
 
-        $userLog->setUser($user->getUserId());
+        $userLog->setUser($user);
         $userLog->setDate(new \DateTime('now'));
         $userLog->setAction('Logout_BO');
         $userLog->setIp($ip);
@@ -65,20 +70,10 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
             $userLog->setVille('Localhost');
             $userLog->setCodePays('Localhost');
         } else {
-/*            $url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
-            $result = file_get_contents($url);
-            $vars = json_decode($result, true);
-            $userLog->setPays($vars['geoplugin_countryName']);
-            $userLog->setVille($vars['geoplugin_city']);
-            $userLog->setCodePays($vars['geoplugin_countryCode']);*/
+
             $geoIPORCA = new GeoIPOrca();
             $vars = $geoIPORCA->getInfoIP();
-            //$url = 'http://www.geoplugin.net/json.gp?ip='.$ip;
-            //$result = file_get_contents($url);
-            //$vars = json_decode($result, true);
-            /*            $userLog->setPays($vars['geoplugin_countryName']);
-                        $userLog->setVille($vars['geoplugin_city']);
-                        $userLog->setCodePays($vars['geoplugin_countryCode']);*/
+
             $userLog->setPays($vars['country']);
             $userLog->setVille($vars['city']);
             $userLog->setCodePays($vars['isoCode']);
@@ -121,6 +116,9 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
         $em = $this->em;
         $em->persist($userLog);
         $em->flush();
+
+        $session = $request->getSession();
+        $session->clear();
 
         $response = new RedirectResponse($this->router->generate('userLog_homepage_login'));
 

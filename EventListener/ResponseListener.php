@@ -63,11 +63,19 @@ class ResponseListener
         if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
 
             // get User()
-            if ($security->getToken() == null){
-                $user ='0';
+
+            if (is_null($security->getToken()))
+            {
+                if (empty($request->getSession()->get('connected')))
+                {
+                    $user = 0;
+                } else {
+                    $user = $request->getSession()->get('connected')->getUserId();
+                }
             } else {
                 $user = $security->getToken()->getUser()->getUserId();
             }
+
 
             if ($em->isOpen()){
                 // inserting

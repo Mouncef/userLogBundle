@@ -160,9 +160,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getWsConnexions($mois)
+    public function getWsConnexions($mois, $annee)
     {
-        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`,
+        /*$sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`,
                 (
                 SELECT COUNT(lo.`error_code`)
                 FROM `tbl_user_log` lo
@@ -174,19 +174,29 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND DATE_FORMAT(l.`date`, \"%m\") = :mois
                 AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
                 GROUP BY l.`post_params`
+                ORDER BY nb_connexion DESC";*/
+
+        $sql = "SELECT l.`id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`
+                FROM `tbl_user_log` l 
+                WHERE l.`action` LIKE '%Ws%'
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
+                AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
+                AND l.`error_code` IN (200,302)
+                AND l.`header` IS NOT NULL
+                GROUP BY REPLACE(CONCAT(post_params,get_params),'[]','')
                 ORDER BY nb_connexion DESC";
 
         $rsm = new ResultSetMapping();
-        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('id', 'id');
         $rsm->addScalarResult('nb_connexion', 'nb_con');
-        $rsm->addScalarResult('nb_erreur', 'nb_err');
         $rsm->addScalarResult('last_conn', 'last_conn');
         $rsm->addScalarResult('terminals', 'ters');
         $rsm->addScalarResult('header', 'header');
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
         $query = $this->_em->createNativeQuery($sql, $rsm)
-            ->setParameter('mois', $mois);
+            ->setParameters(['mois'=>$mois, 'annee'=>$annee]);
 
         return $query->getResult();
     }
@@ -232,6 +242,40 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->getResult()
         ;*/
+
+        return $query->getResult();
+    }
+
+    public function getBoActions($mois, $annee)
+    {
+        $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
+                FROM `tbl_user_log` l
+                WHERE l.`error_code` IN (200,302)
+                AND l.`action` NOT LIKE :ws
+                AND l.`uri` NOT LIKE :api
+                AND l.`uri` NOT LIKE :log
+                AND l.`user_id` != 0
+                AND l.`route_name` NOT LIKE :login
+                AND l.`route_name` NOT LIKE :logout
+                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
+                ORDER BY l.`date` DESC";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('date', 'date');
+        $rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'uri');
+        $rsm->addScalarResult('terminal_type', 'terminalType');
+        $rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('error_code', 'errorCode');
+        $rsm->addScalarResult('header', 'header');
+        $rsm->addScalarResult('post_params', 'postParams');
+        $rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->_em->createNativeQuery($sql, $rsm)
+            ->setParameters(['mois' => $mois, 'ws'  =>  'Ws\\\%', 'api' =>  '%/api/%', 'annee' => $annee, 'login' => 'login_check', 'logout' => 'logout', 'log' =>  '%/userLogChart/%'])
+        ;
 
         return $query->getResult();
     }

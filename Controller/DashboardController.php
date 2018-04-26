@@ -133,10 +133,11 @@ class DashboardController extends Controller
         $date = new \DateTime('now');
 
         $month = date_format($date, 'm');
+        $year = date_format($date, 'Y');
 
         $em = $this->getDoctrine()->getManager();
 
-        $wsConnexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsConnexions($month);
+        $wsConnexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsConnexions($month, $year);
 
         return $this->render('OrcaUserLogBundle:Demo:wsConnexion.html.twig', [
             'connexions' => $wsConnexions
@@ -157,6 +158,24 @@ class DashboardController extends Controller
 
         return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
             'errors'        => $errors,
+            'host'          => $host
+        ]);
+    }
+
+    public function boAction(Request $request) {
+
+        $date = new \DateTime('now');
+        $month = date_format($date, 'm');
+        $year = date_format($date, 'Y');
+
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $actions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getBoActions($month, $year);
+
+        return $this->render('OrcaUserLogBundle:Demo:boActions.html.twig', [
+            'actions'        => $actions,
             'host'          => $host
         ]);
     }
