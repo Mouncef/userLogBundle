@@ -254,6 +254,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`action` NOT LIKE :ws
                 AND l.`uri` NOT LIKE :api
                 AND l.`uri` NOT LIKE :log
+                AND l.`uri` NOT LIKE :draw
                 AND l.`user_id` != 0
                 AND l.`route_name` NOT LIKE :login
                 AND l.`route_name` NOT LIKE :logout
@@ -274,7 +275,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
         $query = $this->_em->createNativeQuery($sql, $rsm)
-            ->setParameters(['mois' => $mois, 'ws'  =>  'Ws\\\%', 'api' =>  '%/api/%', 'annee' => $annee, 'login' => 'login_check', 'logout' => 'logout', 'log' =>  '%/userLogChart/%'])
+            ->setParameters([
+                'mois' => $mois,
+                'ws'  =>  'Ws\\\%',
+                'api' =>  '%/api/%',
+                'annee' => $annee,
+                'login' => 'login_check',
+                'logout' => 'logout',
+                'log' =>  '%/userLogChart/%',
+                'draw'  =>  '%draw%'
+            ])
         ;
 
         return $query->getResult();
