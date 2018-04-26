@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 
 class DashboardController extends Controller
@@ -144,38 +145,40 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function wsAction(Request $request) {
-
-        $date = new \DateTime('now');
-        $month = date_format($date, 'm');
-        $year = date_format($date, 'Y');
-
-
-        $em = $this->getDoctrine()->getManager();
-        $host = $request->getHttpHost();
-
-        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions($month, $year);
-
-        return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
-            'errors'        => $errors,
-            'host'          => $host
-        ]);
-    }
-
     public function boAction(Request $request) {
 
         $date = new \DateTime('now');
         $month = date_format($date, 'm');
         $year = date_format($date, 'Y');
+        $day = date_format($date->modify('-4 day'), 'd');
+
 
 
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $actions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getBoActions($month, $year);
+        $actions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getBoActions($day, $month, $year);
 
         return $this->render('OrcaUserLogBundle:Demo:boActions.html.twig', [
             'actions'        => $actions,
+            'host'          => $host
+        ]);
+    }
+
+    public function wsAction(Request $request) {
+
+        $date = new \DateTime('now');
+        $month = date_format($date, 'm');
+        $year = date_format($date, 'Y');
+        $day = date_format($date->modify('-4 day'), 'd');
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions($day, $month, $year);
+
+        return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
+            'errors'        => $errors,
             'host'          => $host
         ]);
     }
@@ -185,7 +188,12 @@ class DashboardController extends Controller
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getErrors();
+        $date = new \DateTime('now');
+        $month = date_format($date, 'm');
+        $year = date_format($date, 'Y');
+        $day = date_format($date->modify('-4 day'), 'd');
+
+        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getErrors($day, $month, $year);
 
         return $this->render('OrcaUserLogBundle:Demo:erreur.html.twig', [
             'errors'        => $errors,
