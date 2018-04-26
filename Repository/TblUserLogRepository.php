@@ -286,7 +286,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->select('l.id','l.date', 'l.action', 'l.uri', 'l.terminalType', 'l.ville', 'l.user', 'l.errorCode','l.header','l.postParams','l.getParams')
             ->from('OrcaUserLogBundle:TblUserLog', 'l')
             ->where('l.errorCode not in (200,302)')
+            ->andWhere('l.uri NOT LIKE :bundles')
             ->orderBy('l.date ', 'DESC')
+            ->setParameter('bundles','%/bundles/%')
             ->setMaxResults(100)
             ->getQuery()
             ->getResult();
