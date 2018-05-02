@@ -148,11 +148,14 @@ class DashboardController extends Controller
     public function boAction(Request $request) {
 
         $date = new \DateTime('now');
-        $month = date_format($date, 'm');
-        $year = date_format($date, 'Y');
-        $day = date_format($date->modify('-4 day'), 'd');
-
-
+        $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+        $month = date_format($mdate, 'm');
+        $year = date_format($mdate, 'Y');
+        $day = date_format($mdate, 'd');
 
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
@@ -168,9 +171,14 @@ class DashboardController extends Controller
     public function wsAction(Request $request) {
 
         $date = new \DateTime('now');
-        $month = date_format($date, 'm');
-        $year = date_format($date, 'Y');
-        $day = date_format($date->modify('-4 day'), 'd');
+        $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+        $month = date_format($mdate, 'm');
+        $year = date_format($mdate, 'Y');
+        $day = date_format($mdate, 'd');
 
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
@@ -189,9 +197,14 @@ class DashboardController extends Controller
         $host = $request->getHttpHost();
 
         $date = new \DateTime('now');
-        $month = date_format($date, 'm');
-        $year = date_format($date, 'Y');
-        $day = date_format($date->modify('-4 day'), 'd');
+        $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+        $month = date_format($mdate, 'm');
+        $year = date_format($mdate, 'Y');
+        $day = date_format($mdate, 'd');
 
         $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getErrors($day, $month, $year);
 

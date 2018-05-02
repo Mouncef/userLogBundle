@@ -70,7 +70,17 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere("DATE_FORMAT(u.date, '%d') = :day")
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
-            ->setParameters(['day' => $day, 'month' => $month, 'year' => $year])
+            ->andWhere("u.uri NOT LIKE :bundle")
+            ->andWhere("u.uri NOT LIKE :userlog")
+            ->setParameters(
+                [
+                    'day' => $day,
+                    'month' => $month,
+                    'year' => $year,
+                    'bundle' => '%/bundles/%',
+                    'userlog' => '%/userLogChart/%',
+                ]
+            )
             ->getQuery()
             ->getResult();
 
@@ -101,7 +111,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('u.errorCode != 302')
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
-            ->setParameters(['month' => $month, 'year' => $year])
+            ->andWhere("u.uri NOT LIKE :bundle")
+            ->andWhere("u.uri NOT LIKE :userlog")
+            ->setParameters(
+                [
+                    'month' => $month,
+                    'year' => $year,
+                    'bundle' => '%/bundles/%',
+                    'userlog' => '%/userLogChart/%',
+                ]
+            )
             ->getQuery()
             ->getResult();
 
@@ -221,10 +240,13 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`user_id` != 0
                 AND l.`route_name` NOT LIKE :login
                 AND l.`route_name` NOT LIKE :logout
-                AND DATE_FORMAT(l.`date`, \"%d\") >= :days
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
-                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
-                ORDER BY l.`date` DESC";
+                AND l.`date` >= :dateOf
+                ORDER BY l.`date` DESC"
+        ;
+        //
+        //        -- AND DATE_FORMAT(l.`date`, "%d") >= :days
+        //    -- AND DATE_FORMAT(l.`date`, "%m") = :mois
+        //    -- AND DATE_FORMAT(l.`date`, "%Y") = :annee
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('id', 'id');
@@ -240,11 +262,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('get_params', 'getParams');
         $query = $this->_em->createNativeQuery($sql, $rsm)
             ->setParameters([
-                'days' => $jour,
-                'mois' => $mois,
+                'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
                 'ws'  =>  'Ws\\\%',
                 'api' =>  '%/api/%',
-                'annee' => $annee,
                 'login' => 'login_check',
                 'logout' => 'logout',
                 'log' =>  '%/userLogChart/%',
@@ -264,10 +284,13 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`action` LIKE :ws
                 AND l.`uri` LIKE :api
                 AND l.`user_id` != 0
-                AND DATE_FORMAT(l.`date`, \"%d\") >= :days
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
-                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
-                ORDER BY l.`date` DESC";
+                AND l.`date` >= :dateOf
+                ORDER BY l.`date` DESC"
+        ;
+
+        //        AND DATE_FORMAT(l.`date`, "%d") >= :days
+        //        AND DATE_FORMAT(l.`date`, "%m") = :mois
+        //        AND DATE_FORMAT(l.`date`, "%Y") = :annee
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('id', 'id');
@@ -284,11 +307,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $query = $this->_em->createNativeQuery($sql, $rsm)
             ->setParameters(
                 [
-                    'days' => $jour,
-                    'mois' => $mois,
+                    'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
                     'ws'  =>  'Ws\\\%',
                     'api' =>  '%/api/%',
-                    'annee' => $annee
                 ]
             )
         ;
@@ -304,9 +325,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 WHERE l.`error_code` NOT IN (200,302)
                 AND l.`uri` NOT LIKE :bundles
                 AND l.`uri` NOT LIKE :log
-                AND DATE_FORMAT(l.`date`, \"%d\") >= :days
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
-                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
+                AND l.`date` >= :dateOf
                 ORDER BY l.`date` DESC
                 LIMIT 100";
 
@@ -325,11 +344,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $query = $this->_em->createNativeQuery($sql, $rsm)
             ->setParameters(
                 [
-                    'days'      => $jour,
-                    'mois'      => $mois,
+                    'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
                     'bundles'   =>'%/bundles/%',
                     'log'       =>'%/userLogChart/%',
-                    'annee'     => $annee
                 ]
             )
         ;
@@ -436,7 +453,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('u.errorCode != 302')
             ->andWhere("u.date >= :start")
             ->andWhere("u.date <= :end")
-            ->setParameters(['start' => $start, 'end' => $end])
+            ->andWhere("u.uri NOT LIKE :bundle")
+            ->andWhere("u.uri NOT LIKE :userlog")
+            ->setParameters(
+                [
+                    'start' => $start,
+                    'end' => $end,
+                    'bundle' => '%/bundles/%',
+                    'userlog' => '%/userLogChart/%',
+                ]
+            )
             ->getQuery()
             ->getResult();
 
