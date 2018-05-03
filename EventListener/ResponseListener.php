@@ -66,10 +66,11 @@ class ResponseListener
 
             if (is_null($security->getToken()))
             {
-                if (empty($request->getSession()->get('connected')))
-                {
+                if (empty($request->getSession())){
                     $user = 0;
-                } else {
+                } elseif(empty($request->getSession()->get('connected'))) {
+                    $user = 0;
+                }else{
                     $user = $request->getSession()->get('connected')->getUserId();
                 }
             } else {
