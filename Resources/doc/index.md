@@ -119,7 +119,26 @@ php bin/console doctrine:schema:update --force
 ```
 ou executer la requête suivante : 
 ``` sql
-CREATE TABLE tbl_user_log (id INT AUTO_INCREMENT NOT NULL, DATE DATETIME NOT NULL, user_id INT NOT NULL, pays VARCHAR(255) DEFAULT NULL, ip VARCHAR(255) DEFAULT NULL, ville VARCHAR(255) DEFAULT NULL, terminal VARCHAR(255) DEFAULT NULL, ACTION VARCHAR(255) DEFAULT NULL, route_name VARCHAR(255) DEFAULT NULL, uri LONGTEXT DEFAULT NULL, error_code VARCHAR(255) DEFAULT NULL, terminal_type VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = INNODB;
+CREATE TABLE `tbl_user_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `pays` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `code_pays` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ip` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ville` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `terminal` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `action` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `route_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `uri` longtext COLLATE utf8_unicode_ci,
+  `error_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `terminal_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `header` longtext COLLATE utf8_unicode_ci,
+  `post_params` longtext COLLATE utf8_unicode_ci,
+  `get_params` longtext COLLATE utf8_unicode_ci,
+  `json_response` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
 ### Ajouter à votre entité la méthode getUserId() si elle n'existe Pas
 ```User Entity
