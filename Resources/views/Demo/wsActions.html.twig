@@ -127,7 +127,11 @@
                                                             <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
                                                             <div>
                                                                 <p>
-                                                                    {{ value }}
+                                                                    {% if value is iterable %}
+                                                                        {{ dump(value) }}
+                                                                    {% else %}
+                                                                        {{ value }}
+                                                                    {% endif %}
                                                                 </p>
                                                             </div>
                                                         {% endfor %}
@@ -157,7 +161,11 @@
                                                             <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
                                                             <div>
                                                                 <p>
-                                                                    {{ value }}
+                                                                    {% if value is iterable %}
+                                                                        {{ dump(value) }}
+                                                                    {% else %}
+                                                                        {{ value }}
+                                                                    {% endif %}
                                                                 </p>
                                                             </div>
                                                         {% endfor %}
