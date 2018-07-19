@@ -97,7 +97,31 @@
                                                                 <div>
                                                                     <p>
                                                                         {% if v is iterable %}
-                                                                            {{ dump(v) }}
+                                                                            {% for a in v %}
+                                                                            	{% if a is iterable %}
+                                                                            		{% for b in a %}
+                                                                            			{% if b is iterable %}
+                                                                            				{% for c in b %}
+                                                                            					{% if c is iterable %}
+                                                                            						{% for d in c %}
+                                                                            							{% if d is iterable %}
+                                                                            								Array
+                                                                            							{% else %}
+                                                                            								{{ d }}
+                                                                            							{% endif %}
+                                                                            						{% endfor %}
+                                                                            					{% else %}
+                                                                            						{{ c }}
+                                                                            					{% endif %}
+                                                                            				{% endfor %}
+                                                                            			{% else %}
+                                                                            				{{ b }}
+                                                                            			{% endif %}
+                                                                            		{% endfor %}
+                                                                            	{% else %}
+                                                                            		{{ a }}
+                                                                            	{% endif %}
+                                                                            {% endfor %}
                                                                         {% else %}
                                                                             {{ v }}
                                                                         {% endif %}
@@ -132,7 +156,7 @@
                                                             <div>
                                                                 <p>
                                                                     {% if value is iterable %}
-                                                                        {{ dump(value) }}
+                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
                                                                     {% else %}
                                                                         {{ value }}
                                                                     {% endif %}

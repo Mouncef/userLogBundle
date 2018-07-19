@@ -133,7 +133,7 @@
                                                             <div>
                                                                 <p>
                                                                     {% if value is iterable %}
-                                                                        {{ dump(value) }}
+                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
                                                                     {% else %}
                                                                         {{ value }}
                                                                     {% endif %}
@@ -167,7 +167,7 @@
                                                             <div>
                                                                 <p>
                                                                     {% if value is iterable %}
-                                                                        {{ dump(value) }}
+                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
                                                                     {% else %}
                                                                         {{ value }}
                                                                     {% endif %}

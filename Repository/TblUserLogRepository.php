@@ -108,7 +108,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->select('COUNT(u.id) as ct')
             ->from('OrcaUserLogBundle:TblUserLog', 'u')
             ->where('u.errorCode != 200')
-            ->andWhere('u.errorCode != 302')
+            ->andWhere('u.errorCode != 201')->andWhere('u.errorCode != 202')->andWhere('u.errorCode != 203')->andWhere('u.errorCode != 204')->andWhere('u.errorCode != 205')
+            ->andWhere('u.errorCode != 206')->andWhere('u.errorCode != 207')->andWhere('u.errorCode != 208')->andWhere('u.errorCode != 210')->andWhere('u.errorCode != 226')
+            ->andWhere('u.errorCode != 302')->andWhere('u.errorCode != 300')->andWhere('u.errorCode != 301')->andWhere('u.errorCode != 303')->andWhere('u.errorCode != 304')
+            ->andWhere('u.errorCode != 305')->andWhere('u.errorCode != 306')->andWhere('u.errorCode != 307')->andWhere('u.errorCode != 308')->andWhere('u.errorCode != 310')
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
             ->andWhere("u.uri NOT LIKE :bundle")
@@ -166,7 +169,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 (
                 SELECT COUNT(lo.`error_code`)
                 FROM `tbl_user_log` lo
-                WHERE lo.`error_code` NOT IN (200,302)
+                WHERE lo.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND lo.`user_id`=l.`user_id`
                 ) AS nb_erreur
                 FROM `tbl_user_log` l 
@@ -209,7 +212,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND DATE_FORMAT(l.`date`, \"%m\") = :mois
                 AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
                 AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
-                AND l.`error_code` IN (200,302)
+                AND l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`header` IS NOT NULL
                 GROUP BY REPLACE(CONCAT(post_params,get_params),'[]','')
                 ORDER BY nb_connexion DESC";
@@ -232,7 +235,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
     {
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
                 FROM `tbl_user_log` l
-                WHERE l.`error_code` IN (200,302)
+                WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`action` NOT LIKE :ws
                 AND l.`uri` NOT LIKE :api
                 AND l.`uri` NOT LIKE :log
@@ -280,7 +283,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
                 FROM `tbl_user_log` l
-                WHERE l.`error_code` IN (200,302)
+                WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`action` LIKE :ws
                 AND l.`uri` LIKE :api
                 AND l.`user_id` != 0
@@ -322,7 +325,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
                 FROM `tbl_user_log` l
-                WHERE l.`error_code` NOT IN (200,302)
+                WHERE l.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`uri` NOT LIKE :bundles
                 AND l.`uri` NOT LIKE :log
                 AND l.`date` >= :dateOf
@@ -450,7 +453,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->select('COUNT(u.id) as ct')
             ->from('OrcaUserLogBundle:TblUserLog', 'u')
             ->where('u.errorCode != 200')
-            ->andWhere('u.errorCode != 302')
+            ->andWhere('u.errorCode != 201')->andWhere('u.errorCode != 202')->andWhere('u.errorCode != 203')->andWhere('u.errorCode != 204')->andWhere('u.errorCode != 205')
+            ->andWhere('u.errorCode != 206')->andWhere('u.errorCode != 207')->andWhere('u.errorCode != 208')->andWhere('u.errorCode != 210')->andWhere('u.errorCode != 226')
+            ->andWhere('u.errorCode != 302')->andWhere('u.errorCode != 300')->andWhere('u.errorCode != 301')->andWhere('u.errorCode != 303')->andWhere('u.errorCode != 304')
+            ->andWhere('u.errorCode != 305')->andWhere('u.errorCode != 306')->andWhere('u.errorCode != 307')->andWhere('u.errorCode != 308')->andWhere('u.errorCode != 310')
             ->andWhere("u.date >= :start")
             ->andWhere("u.date <= :end")
             ->andWhere("u.uri NOT LIKE :bundle")
