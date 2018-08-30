@@ -195,7 +195,11 @@
                                                                                 <h3 style="color: #000000;text-align: left; font-size: 18px">{{ k }}</h3>
                                                                                 <div>
                                                                                     <p>
-                                                                                        {{ v }}
+                                                                                        {% if v is iterable %}
+                                                                                            (Array) {{ v|json_encode() }}
+                                                                                        {% else %}
+                                                                                            {{ v }}
+                                                                                        {% endif %}
                                                                                     </p>
                                                                                 </div>
                                                                             {% endfor %}
