@@ -74,9 +74,15 @@ class ResponseListener
                     $user = $request->getSession()->get('connected')->getUserId();
                 }
             } else {
-                $user = $security->getToken()->getUser()->getUserId();
+                if ($security->getToken()->getUser() == 'anon.')
+                {
+                    $user = 0;
+                }
+                else
+                {
+                    $user = $security->getToken()->getUser()->getUserId();
+                }
             }
-
 
             if ($em->isOpen()){
                 // inserting
