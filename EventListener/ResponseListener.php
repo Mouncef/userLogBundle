@@ -60,7 +60,7 @@ class ResponseListener
         $statusCode = $response->getStatusCode();
 
         //&& $action == $controller && $action != null
-        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
+        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url && count($header) != 1) {
 
             // get User()
 
