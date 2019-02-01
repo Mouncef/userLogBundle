@@ -161,7 +161,7 @@ class ResponseListener
                     $userLog->setGetParams(json_encode($getParameters));
 
                     $em->persist($userLog);
-                    $em->flush();
+                    $em->flush($userLog);
 
                 }
             }
