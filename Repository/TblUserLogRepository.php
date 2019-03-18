@@ -2,7 +2,9 @@
 
 namespace Orca\UserLogBundle\Repository;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * TblUserLogRepository
@@ -12,11 +14,21 @@ use Doctrine\ORM\Query\ResultSetMapping;
  */
 class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    protected $container;
+    protected $em;
+    public function __construct(ContainerInterface $container, EntityManagerInterface $em)
+    {
+        $this->container = $container;
+        $this->em= $em;
+    }
+
+
     public function getNbConnexionByTypeTerminal($month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct, u.terminalType')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
@@ -30,9 +42,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbConexionByTerminal($month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct, u.terminal')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
@@ -46,9 +58,25 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbConnexionByDay($day, $month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
+            ->where('u.action = :var')
+            ->andWhere("DATE_FORMAT(u.date, '%d') = :day")
+            ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
+            ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
+            ->setParameters(['var' => 'Login_BO', 'day' => $day, 'month' => $month, 'year' => $year])
+            ->getQuery()
+            ->getResult();
+
+        return $query;
+    }
+
+    public function getConnexionByDay($day, $month, $year)
+    {
+        $query = $this->em->createQueryBuilder()
+            ->select('*')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("DATE_FORMAT(u.date, '%d') = :day")
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
@@ -62,9 +90,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbErrorByDay($day, $month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.errorCode != 200')
             ->andWhere('u.errorCode != 302')
             ->andWhere("DATE_FORMAT(u.date, '%d') = :day")
@@ -83,15 +111,15 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             )
             ->getQuery()
             ->getResult();
-
         return $query;
     }
 
     public function getNbConnexionByMonth($month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("DATE_FORMAT(u.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(u.date, '%Y') = :year")
@@ -104,9 +132,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbErrorsByMonth($month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.errorCode != 200')
             ->andWhere('u.errorCode != 201')->andWhere('u.errorCode != 202')->andWhere('u.errorCode != 203')->andWhere('u.errorCode != 204')->andWhere('u.errorCode != 205')
             ->andWhere('u.errorCode != 206')->andWhere('u.errorCode != 207')->andWhere('u.errorCode != 208')->andWhere('u.errorCode != 210')->andWhere('u.errorCode != 226')
@@ -132,9 +160,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getMonths($year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select("DISTINCT (DATE_FORMAT(u.date, '%m')) as mois")
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where("DATE_FORMAT(u.date, '%Y') = :year")
             ->setParameter('year', $year)
             ->getQuery()
@@ -148,7 +176,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $sql = "SELECT terminal, GROUP_CONCAT(nb) AS nb
                 FROM(
                 SELECT DISTINCT u.`terminal`,DATE_FORMAT(u.`date`, \"%m\") AS mois, COUNT(u.action) AS nb
-                FROM `tbl_user_log` u 
+                FROM `".$this->container->getParameter('userlog_tbl')."` u 
                 WHERE u.`action` = :var
                 AND DATE_FORMAT(u.`date`, \"%Y\") = :year
                 GROUP BY u.`terminal`, DATE_FORMAT(u.`date`, \"%m\")
@@ -157,24 +185,25 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('terminal', 'terminal');
         $rsm->addScalarResult('nb', 'nb');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
+        $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters(['var' => 'Login_BO', 'year' => $year]);
 
         return $query->getResult();
     }
 
-    public function getConnexions($mois)
+    public function getConnexions($start, $end)
     {
         $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals,
                 (
                 SELECT COUNT(lo.`error_code`)
-                FROM `tbl_user_log` lo
+                FROM `".$this->container->getParameter('userlog_tbl')."` lo
                 WHERE lo.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND lo.`user_id`=l.`user_id`
                 ) AS nb_erreur
-                FROM `tbl_user_log` l 
+                FROM `".$this->container->getParameter('userlog_tbl')."` l 
                 WHERE l.`action` = 'Login_BO'
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
+                AND l.`date` >= :start
+                AND l.`date` <= :end
                 GROUP BY l.`user_id`
                 ORDER BY nb_connexion DESC";
 
@@ -184,13 +213,14 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('nb_erreur', 'nb_err');
         $rsm->addScalarResult('last_conn', 'last_conn');
         $rsm->addScalarResult('terminals', 'ters');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
-            ->setParameter('mois', $mois);
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
 
         return $query->getResult();
     }
 
-    public function getWsConnexions($mois, $annee)
+    public function getWsConnexions($start, $end)
     {
         /*$sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`,
                 (
@@ -207,10 +237,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 ORDER BY nb_connexion DESC";*/
 
         $sql = "SELECT l.`id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`
-                FROM `tbl_user_log` l 
+                FROM `".$this->container->getParameter('userlog_tbl')."` l 
                 WHERE l.`action` LIKE '%Ws%'
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
-                AND DATE_FORMAT(l.`date`, \"%Y\") = :annee
+                AND l.`date` = :start
+                AND l.`date` = :end
                 AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
                 AND l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`header` IS NOT NULL
@@ -225,16 +255,17 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('header', 'header');
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
-            ->setParameters(['mois'=>$mois, 'annee'=>$annee]);
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameters(['start'=>$start, 'end'=>$end]);
+
 
         return $query->getResult();
     }
 
-    public function getBoActions($jour, $mois, $annee)
+    public function getBoActions($start, $end)
     {
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
-                FROM `tbl_user_log` l
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
                 WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`action` NOT LIKE :ws
                 AND l.`uri` NOT LIKE :api
@@ -243,7 +274,8 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`user_id` != 0
                 AND l.`route_name` NOT LIKE :login
                 AND l.`route_name` NOT LIKE :logout
-                AND l.`date` >= :dateOf
+                AND l.`date` >= :start
+                AND l.`date` <= :end
                 ORDER BY l.`date` DESC"
         ;
         //
@@ -263,9 +295,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('header', 'header');
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
+        $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters([
-                'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
+                'start'    =>  $start,
+                'end'    =>  $end,
                 'ws'  =>  'Ws\\\%',
                 'api' =>  '%/api/%',
                 'login' => 'login_check',
@@ -278,16 +311,17 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getWsActions($jour, $mois, $annee)
+    public function getWsActions($start, $end)
     {
 
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
-                FROM `tbl_user_log` l
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
                 WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`action` LIKE :ws
                 AND l.`uri` LIKE :api
                 AND l.`user_id` != 0
-                AND l.`date` >= :dateOf
+                AND l.`date` >= :start
+                AND l.`date` <= :end
                 ORDER BY l.`date` DESC"
         ;
 
@@ -307,10 +341,11 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('header', 'header');
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
+        $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters(
                 [
-                    'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
+                    'start'    =>  $start,
+                    'end'    =>  $end,
                     'ws'  =>  'Ws\\\%',
                     'api' =>  '%/api/%',
                 ]
@@ -320,15 +355,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getErrors($jour, $mois, $annee)
+    public function getErrors($start, $end)
     {
 
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
-                FROM `tbl_user_log` l
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
                 WHERE l.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`uri` NOT LIKE :bundles
                 AND l.`uri` NOT LIKE :log
-                AND l.`date` >= :dateOf
+                AND l.`date` >= :start
+                AND l.`date` <= :end
                 ORDER BY l.`date` DESC
                 LIMIT 100";
 
@@ -344,10 +380,11 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('header', 'header');
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
-        $query = $this->_em->createNativeQuery($sql, $rsm)
+        $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters(
                 [
-                    'dateOf'    =>  ''.$annee.'-'.$mois.'-'.$jour.'',
+                    'start'    =>  $start,
+                    'end'    =>  $end,
                     'bundles'   =>'%/bundles/%',
                     'log'       =>'%/userLogChart/%',
                 ]
@@ -359,9 +396,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getTopFive($month, $year)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('l.user', 'l.terminalType', 'COUNT(l.user) as nbr')
-            ->from('OrcaUserLogBundle:TblUserLog', 'l')
+            ->from($this->container->getParameter('userlog_repo'), 'l')
             ->where('l.action = :login')
             ->andWhere("DATE_FORMAT(l.date, '%m') = :month")
             ->andWhere("DATE_FORMAT(l.date, '%Y') = :year")
@@ -378,9 +415,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getPays()
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('l.codePays as code', 'l.pays as name', 'COUNT(l.codePays) as value')
-            ->from('OrcaUserLogBundle:TblUserLog', 'l')
+            ->from($this->container->getParameter('userlog_repo'), 'l')
             ->where('l.pays != :localhost')
             ->andWhere('l.action = :login')
             ->groupBy('l.codePays')
@@ -407,7 +444,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('State', 'State');
         $rsm->addScalarResult('Info', 'Info');
         $rsm->addScalarResult('Progress', 'Progress');
-        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query = $this->em->createNativeQuery($sql, $rsm);
 
         return $query->getResult();
     }
@@ -417,9 +454,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
      */
     public function getNbConnexionByTypeTerminalRange($start, $end)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct, u.terminalType')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("u.date >= :start")
             ->andWhere("u.date <= :end")
@@ -433,9 +470,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbConnexionByRange($start, $end)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("u.date >= :start")
             ->andWhere("u.date < :end")
@@ -449,9 +486,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbErrorsByRange($start, $end)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.errorCode != 200')
             ->andWhere('u.errorCode != 201')->andWhere('u.errorCode != 202')->andWhere('u.errorCode != 203')->andWhere('u.errorCode != 204')->andWhere('u.errorCode != 205')
             ->andWhere('u.errorCode != 206')->andWhere('u.errorCode != 207')->andWhere('u.errorCode != 208')->andWhere('u.errorCode != 210')->andWhere('u.errorCode != 226')
@@ -477,9 +514,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getTopFiveRange($start, $end)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('l.user', 'l.terminalType', 'COUNT(l.user) as nbr')
-            ->from('OrcaUserLogBundle:TblUserLog', 'l')
+            ->from($this->container->getParameter('userlog_repo'), 'l')
             ->where('l.action = :login')
             ->andWhere("l.date >= :start")
             ->andWhere("l.date <= :end")
@@ -496,9 +533,9 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getNbConexionByTerminalRange($start, $end)
     {
-        $query = $this->_em->createQueryBuilder()
+        $query = $this->em->createQueryBuilder()
             ->select('COUNT(u.id) as ct, u.terminal')
-            ->from('OrcaUserLogBundle:TblUserLog', 'u')
+            ->from($this->container->getParameter('userlog_repo'), 'u')
             ->where('u.action = :var')
             ->andWhere("u.date >= :start")
             ->andWhere("u.date <= :end")
@@ -512,15 +549,58 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getYearsOfCNX()
     {
-        $sql = "SELECT DISTINCT DATE_FORMAT(u.`date`, \"%Y\") as annees FROM tbl_user_log u
+        $sql = "SELECT DISTINCT DATE_FORMAT(u.`date`, \"%Y\") as annees FROM `".$this->container->getParameter('userlog_tbl')."` u
                 WHERE u.action = 'Login_BO'
                 ORDER BY annees DESC
                 ";
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('annees', 'year');
-        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query = $this->em->createNativeQuery($sql, $rsm);
 
+        return $query->getResult();
+    }
+
+    public function getAllActionsByUserIdByRange($start, $end, $id){
+
+        $sql = "SELECT l.`id`, l.`date`, l.`uri`, l.`user_id`, l.`error_code`
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
+                WHERE l.`action` NOT LIKE :ws
+                AND l.`uri` NOT LIKE :api
+                AND l.`uri` NOT LIKE :log
+                AND l.`uri` NOT LIKE :draw
+                AND l.`user_id` = :id
+                AND l.`date` >= :start
+                AND l.`date` <= :end
+                /*ORDER BY DATE_FORMAT(l.`date`, \"%H:%i:%s\") DESC*/"
+        ;
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('date', 'date');
+        //$rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'uri');
+        //$rsm->addScalarResult('terminal_type', 'terminalType');
+        //$rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('error_code', 'errorCode');
+        //$rsm->addScalarResult('header', 'header');
+        //$rsm->addScalarResult('post_params', 'postParams');
+        //$rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameters([
+                'start' => $start,
+                'end' => $end,
+                //'month' => $month,
+                //'year' => $year,
+                'id' => $id,
+                'ws'  =>  'Ws\\\%',
+                'api' =>  '%/api/%',
+                'log' =>  '%/userLogChart/%',
+                'draw'  =>  '%draw%'
+            ])
+        ;
+//var_dump($query->getResult());die;
         return $query->getResult();
     }
 }

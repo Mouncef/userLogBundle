@@ -6,13 +6,20 @@ parameters:
     orca_user_log.twig.extension.vars_extension.class: Orca\UserLogBundle\Twig\Extension\VarsExtension
 
 services:
-    orca_user_log.component.authentication.handler.login_success_handler:
-        class:  '%orca_user_log.component.authentication.handler.login_success_handler.class%'
-        arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector','@service_container']
+
+#    orca_user_log.component.authentication.handler.login_success_handler:
+#        class:  '%orca_user_log.component.authentication.handler.login_success_handler.class%'
+#        arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector','@service_container']
+#        tags:
+#            - { name: 'monolog.logger', channel: 'security' }
+
+    orca_user_log.component.authentication.handler.logout_success_handler:
+        class:  '%orca_user_log.component.authentication.handler.logout_success_handler.class%'
+        arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector', '@security.token_storage','@service_container' ]
         tags:
             - { name: 'monolog.logger', channel: 'security' }
 
-    orca_user_log.component.authentication.handler.logout_success_handler:
+    orca_user_log.Dashboard_Controller:
         class:  '%orca_user_log.component.authentication.handler.logout_success_handler.class%'
         arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector', '@security.token_storage','@service_container' ]
         tags:
@@ -29,3 +36,17 @@ services:
         public: false
         tags:
           - { name: twig.extension }
+
+#    Orca\UserLogBundle\Subscriber\LogEventsSubscriber:
+#        class: Orca\UserLogBundle\Subscriber\LogEventsSubscriber
+#        arguments:  ['@service_container']
+#        tags:
+#          - { name: kernel.event_subscriber}
+
+    Orca\UserLogBundle\Repository\TblUserLogRepository:
+        class: Orca\UserLogBundle\Repository\TblUserLogRepository
+        arguments:  ['@service_container', "@doctrine.orm.entity_manager"]
+
+    Orca\UserLogBundle\Services\LoginSuccessService:
+        class: Orca\UserLogBundle\Services\LoginSuccessService
+        arguments:  ['@service_container', "@doctrine.orm.entity_manager"]

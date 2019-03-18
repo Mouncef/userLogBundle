@@ -8,30 +8,35 @@
 
 namespace Orca\UserLogBundle\Controller;
 
-
 use Orca\UserLogBundle\DB\GeoIPOrca;
 use Orca\UserLogBundle\Entity\TblUserLog;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class DashboardController extends Controller
 {
+
     public function indexAction(Request $request)
     {
-
         $date = new \DateTime('now');
         $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
         $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
         $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
         $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
-        $date = new \DateTime('now');
+
         $day = date_format($date, 'd');
         $month = date_format($date, 'm');
         $year = date_format($date, 'Y');
+        $em = $this->getDoctrine()->getManager();
+
 
         $choosedYear = $request->get('year');
         if (!$choosedYear){
@@ -43,34 +48,39 @@ class DashboardController extends Controller
 
         //$nbCNXByTerminalType = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTypeTerminal($month, $year);
        // $nbCNXByTerminal = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConexionByTerminal($month, $year);
-        $nbCNXByDay = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByDay($day, $month, $year);
-        $nbErrorByDay = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorByDay($day, $month, $year);
+        $nbCNXByDay = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbConnexionByDay($day, $month, $year);
+        $nbErrorByDay = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbErrorByDay($day, $month, $year);
+        //var_dump($nbErrorByDay, $day,$month,$year);die();
         //$nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByMonth($month, $year);
         //$nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByMonth($month, $year);
-        $months = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getMonths($choosedYear);
-        $nbCNXByTerminalAndByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTerminalAndByMonth($choosedYear);
-        $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFive($month,$year);
-        $pays=$em->getRepository('OrcaUserLogBundle:TblUserLog')->getPays();
+        $months = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getMonths($choosedYear);
+        $nbCNXByTerminalAndByMonth = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbConnexionByTerminalAndByMonth($choosedYear);
+        $topfiveUsers = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getTopFive($month,$year);
+        $pays = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getPays();
         /**
          * getByRange
          */
-        $nbCNXByTerminalType = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByTypeTerminalRange($start, $end);
-        $nbCNXByTerminal = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConexionByTerminalRange($start, $end);
-        $nbCNXByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbConnexionByRange($start, $end);
-        $nbErrorByMonth = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getNbErrorsByRange($start, $end);
-        $topfiveUsers = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getTopFiveRange($start,$end);
+        $nbCNXByTerminalType = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbConnexionByTypeTerminalRange($start, $end);
+        $nbCNXByTerminal = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbConexionByTerminalRange($start, $end);
+        $nbCNXByMonth = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbConnexionByRange($start, $end);
+        $nbErrorByMonth = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getNbErrorsByRange($start, $end);
+        $topfiveUsers = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getTopFiveRange($start,$end);
+        //var_dump($topfiveUsers);die;
 
         $users = $ios = $navigator= array();
         $index  =0;
         $found = false;
 
-        $yearsOfCNX = $em->getRepository(TblUserLog::class)->getYearsOfCNX();
+        $yearsOfCNX = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getYearsOfCNX();
 
         //for($i = 0 ; $i<5 ; $i++)$users[$i]['name']= $topfiveUsers[$i]['user'];
 
         for($i = 0 ; $i< count($topfiveUsers) ; $i++){
             if(!in_array($topfiveUsers[$i]['user'] , $users)){
-                $users[$index++] = $topfiveUsers[$i]['user'];
+                $user = $em->getRepository($this->getParameter('TblUserRepo'))->findOneBy(['userId' => $topfiveUsers[$i]['user']]);
+                $username = $user->getUserNom() ." ". $user->getUserPrenom();
+                //var_dump($username);die;
+                $users[$index++] = $username;//$topfiveUsers[$i]['user'];
                 if($topfiveUsers[$i]['terminalType'] == 'Navigateur Web'){
                     $navigator[$index] = $topfiveUsers[$i]['nbr'];
                     for ($j = $i+1 ; $j<count($topfiveUsers) ; $j++){
@@ -97,7 +107,7 @@ class DashboardController extends Controller
             if($index ==4)break;
         }
 
-        return $this->render('OrcaUserLogBundle:Demo:dashboard.html.twig',[
+        return $this->render('@OrcaUserLog/Demo/dashboard.html.twig',[
             'nbCNXbyTypeTerminal'       => $nbCNXByTerminalType,
             'nbCNXbyTerminal'           => $nbCNXByTerminal,
             'nbCNXbyDay'                => $nbCNXByDay,
@@ -114,33 +124,38 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function connexionAction()
+    public function connexionAction(Request $request)
     {
         $date = new \DateTime('now');
 
         $month = date_format($date, 'm');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
 
 
         $em = $this->getDoctrine()->getManager();
-        $connexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getConnexions($month);
+        $connexions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getConnexions($start, $end);
 
-        return $this->render('OrcaUserLogBundle:Demo:connexion.html.twig', [
+        return $this->render('@OrcaUserLog/Demo/connexion.html.twig', [
             'connexions' => $connexions
         ]);
     }
 
-    public function wsConnexionAction()
+    public function wsConnexionAction(Request $request)
     {
         $date = new \DateTime('now');
-
-        $month = date_format($date, 'm');
-        $year = date_format($date, 'Y');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
 
         $em = $this->getDoctrine()->getManager();
 
-        $wsConnexions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsConnexions($month, $year);
+        $wsConnexions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getWsConnexions($start, $end);
 
-        return $this->render('OrcaUserLogBundle:Demo:wsConnexion.html.twig', [
+        return $this->render('@OrcaUserLog/Demo/wsConnexion.html.twig', [
             'connexions' => $wsConnexions
         ]);
     }
@@ -148,29 +163,38 @@ class DashboardController extends Controller
     public function boAction(Request $request) {
 
         $date = new \DateTime('now');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
         $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
         if(is_null($nbday)){
             $nbday = '-4 day';
         }
         $mdate = $date->modify($nbday);
-        $month = date_format($mdate, 'm');
-        $year = date_format($mdate, 'Y');
-        $day = date_format($mdate, 'd');
 
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $actions = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getBoActions($day, $month, $year);
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository($this->getParameter('TblUserRepo'))->findAll();
 
-        return $this->render('OrcaUserLogBundle:Demo:boActions.html.twig', [
+        $actions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getBoActions($start, $end);
+
+        return $this->render('@OrcaUserLog/Demo/boActions.html.twig', [
             'actions'        => $actions,
-            'host'          => $host
+            'host'          => $host,
+            'users' => $users
         ]);
     }
 
     public function wsAction(Request $request) {
 
         $date = new \DateTime('now');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
         $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
         if(is_null($nbday)){
             $nbday = '-4 day';
@@ -183,9 +207,9 @@ class DashboardController extends Controller
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getWsActions($day, $month, $year);
+        $errors = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getWsActions($start, $end);
 
-        return $this->render('OrcaUserLogBundle:Demo:wsActions.html.twig', [
+        return $this->render('@OrcaUserLog/Demo/wsActions.html.twig', [
             'errors'        => $errors,
             'host'          => $host
         ]);
@@ -197,6 +221,10 @@ class DashboardController extends Controller
         $host = $request->getHttpHost();
 
         $date = new \DateTime('now');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
         $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
         if(is_null($nbday)){
             $nbday = '-4 day';
@@ -206,9 +234,9 @@ class DashboardController extends Controller
         $year = date_format($mdate, 'Y');
         $day = date_format($mdate, 'd');
 
-        $errors = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getErrors($day, $month, $year);
+        $errors = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getErrors($start, $end);
 
-        return $this->render('OrcaUserLogBundle:Demo:erreur.html.twig', [
+        return $this->render('@OrcaUserLog/Demo/erreur.html.twig', [
             'errors'        => $errors,
             'host'          => $host
         ]);
@@ -219,10 +247,10 @@ class DashboardController extends Controller
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProcessList();
+        $data = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getProcessList();
 //        var_dump($data); die;
 
-        return $this->render('OrcaUserLogBundle:Demo:processlist.html.twig', [
+        return $this->render('@OrcaUserLog/Demo/processlist.html.twig', [
             'data'        => $data
             ]);
     }
@@ -232,7 +260,7 @@ class DashboardController extends Controller
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $data = $em->getRepository('OrcaUserLogBundle:TblUserLog')->getProcessList();
+        $data = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getProcessList();
         $response = array(
             "draw"=> $request->get('draw',1),
             "recordsTotal"=> count($data),
@@ -245,6 +273,41 @@ class DashboardController extends Controller
 
     public function speedtestAction()
     {
-        return $this->render('OrcaUserLogBundle:Demo:speedtest.html.twig');
+        return $this->render('@OrcaUserLog/Demo/speedtest.html.twig');
     }
+
+    public function timeLineAction(Request $request){
+
+        if (!isset($_REQUEST['start']) && !isset($_REQUEST['end'])){
+            $date = new \DateTime('now');
+            $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-'. date_format($date, 'd'));
+            $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+            $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+            $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
+        }else{
+            $start = $request->get('start').' 00:00:00';
+            $end = $request->get('end').' 23:59:59';
+        }
+
+
+        /*$date = new \DateTime('now');
+        $now = date_format($date, 'Y-m-d');*/
+        $userId = $request->get('id');
+        $data = "";
+
+        if ($request->isXmlHttpRequest()){
+            $data = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getAllActionsByUserIdByRange($start, $end, $userId);
+        }
+        //return new Response(json_encode($data), 200, ['Content-Type' => 'application/json']);
+
+        if (!empty($data)){
+            return new Response($this->renderView('@OrcaUserLog/Demo/timeLine.html.twig', [
+                'data'        => $data
+            ]));
+        }else{
+            return new Response("<h2 style='text-align: center;'>Aucune donnée trouvée pour l'utilisateur choisi !</h2>");
+        }
+
+    }
+
 }

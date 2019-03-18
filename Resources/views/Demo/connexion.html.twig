@@ -14,9 +14,18 @@
             color: #FFF !important;
         }
     </style>
-
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                <i class="fas fa-calendar-alt"></i>&nbsp;
+                <span></span> <b class="caret"></b>
+            </div>
+        </div>
+    </div>
+    <br />
     <div class="row">
         <div class="col-md-12">
+
             <div class="dash-unit" style="padding: 5px;">
                 <table id="example" class="display" cellspacing="0" width="100%" style="padding: 5px;">
                     <thead>
@@ -59,6 +68,10 @@
 {% block javascript %}
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/map.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="https://code.highcharts.com/mapdata/custom/world.js"></script>
+
     <script>
         var table = $('#example').DataTable({
                 "paging": true,
@@ -105,5 +118,72 @@
                         }
                     } );
                 } )});
+
+            $(function() {
+
+            var start = moment().startOf('month');
+            var end = moment().endOf('month');
+            var isFirstTime = true;
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+                if(isFirstTime){
+                    isFirstTime = false;
+                }
+                    else
+                {
+                    window.location.href = '{{ path('dashboard_connexion') }}?start=' + start.format('YYYY-MM-DD') + '&end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
+                }
+            }
+
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                locale: {
+                    format: 'YYYY-MM-DD',
+
+                    "applyLabel": "Filtrer",
+                    "cancelLabel": "Annuler",
+                    "fromLabel": "From",
+                    "toLabel": "To",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "Su",
+                        "Mo",
+                        "Tu",
+                        "We",
+                        "Th",
+                        "Fr",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "January-",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December"
+                    ],
+                    "firstDay": 1
+                },
+                ranges: {
+                    'Aujourd\'hui': [moment(), moment()],
+                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Dernier 7J': [moment().subtract(6, 'days'), moment()],
+                    'Dernier 30J': [moment().subtract(29, 'days'), moment()],
+                    'Ce mois': [moment().startOf('month'), moment().endOf('month')],
+                    'Dernier Mois': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
+
+        });
     </script>
 {% endblock %}

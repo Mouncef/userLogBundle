@@ -48,3 +48,7 @@ dashboard_ajaxprocesslist:
 dashboard_speedtest:
     path:     /speedtest
     defaults: { _controller: OrcaUserLogBundle:Dashboard:speedtest }
+
+dashboard_ajaxuseractions:
+    path:     /timeLine
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:timeLine }

@@ -43,7 +43,6 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
-
         $user = $token->getUser();
         $ip = $request->getClientIp();
 

@@ -20,7 +20,7 @@ use Orca\UserLogBundle\DB\GeoIPOrca;
 class ResponseListener
 {
     protected $container;
-
+    
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -60,7 +60,7 @@ class ResponseListener
         $statusCode = $response->getStatusCode();
 
         //&& $action == $controller && $action != null
-        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url && count($header) != 1) {
+        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
 
             // get User()
 
@@ -74,15 +74,9 @@ class ResponseListener
                     $user = $request->getSession()->get('connected')->getUserId();
                 }
             } else {
-                if ($security->getToken()->getUser() == 'anon.')
-                {
-                    $user = 0;
-                }
-                else
-                {
-                    $user = $security->getToken()->getUser()->getUserId();
-                }
+                $user = $security->getToken()->getUser()->getUserId();
             }
+
 
             if ($em->isOpen()){
                 // inserting
@@ -91,6 +85,7 @@ class ResponseListener
 
 
                     $userLog = new TblUserLog();
+                    //$userLog = new $this->container->getParameter('tbl_log');
 
                     $userLog->setDate(new \DateTime('now'));
                     if ($routeName == null){
@@ -161,20 +156,10 @@ class ResponseListener
                     $userLog->setGetParams(json_encode($getParameters));
 
                     $em->persist($userLog);
-                    $em->flush($userLog);
+                    $em->flush();
 
                 }
             }
-
-
-
         }
-
-
-
-
-
-
-
     }
 }
