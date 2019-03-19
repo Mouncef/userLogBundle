@@ -140,7 +140,6 @@ Acme\Appbundle\Subscriber\LogEventSubscriber:
         arguments:  ['@service_container', "@doctrine.orm.entity_manager"]
         tags:
             - { name: kernel.event_subscriber}
-			
 ```
 
 
@@ -160,10 +159,9 @@ doctrine:
                 date_format: DoctrineExtensions\Query\Mysql\DateFormat
             string_functions:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
-				
 
 parameters:
-	userlog_entity: 'Acme\AppBundle\Entity\TblUserLog' #namespace de votre entité
+    userlog_entity: 'Acme\AppBundle\Entity\TblUserLog' #namespace de votre entité
     userlog_repo: 'AcmeAppBundle:TblUserLog' #repository de votre entité de log
     userlog_tbl: 'tbl_user_log' #le nom de la table dans la base de données
     TblUserRepo: 'AcmeAppBundle:TblUser' #repository de votre entité utilisateur
