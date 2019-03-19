@@ -246,6 +246,7 @@ CREATE TABLE `tbl_user_log` (
   `post_params` longtext COLLATE utf8_unicode_ci,
   `get_params` longtext COLLATE utf8_unicode_ci,
   `json_response` text COLLATE utf8_unicode_ci,
+  `exception_msg` longtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 ```
