@@ -7,11 +7,11 @@ parameters:
 
 services:
 
-#    orca_user_log.component.authentication.handler.login_success_handler:
-#        class:  '%orca_user_log.component.authentication.handler.login_success_handler.class%'
-#        arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector','@service_container']
-#        tags:
-#            - { name: 'monolog.logger', channel: 'security' }
+    orca_user_log.component.authentication.handler.login_success_handler:
+        class:  '%orca_user_log.component.authentication.handler.login_success_handler.class%'
+        arguments:  ['@doctrine.orm.entity_manager', '@router', '@mobile_detect.mobile_detector','@service_container']
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
 
     orca_user_log.component.authentication.handler.logout_success_handler:
         class:  '%orca_user_log.component.authentication.handler.logout_success_handler.class%'
