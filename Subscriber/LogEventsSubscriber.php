@@ -27,6 +27,7 @@ use Symfony\Component\Security\Core\AuthenticationEvents;
 use Symfony\Component\Security\Core\Event\AuthenticationEvent;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Orca\UserLogBundle\DB\GeoIPOrca;
 
 class LogEventsSubscriber implements EventSubscriberInterface
 {
