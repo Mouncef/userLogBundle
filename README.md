@@ -12,7 +12,7 @@ Ce bundle requiert l'installation des bundles :
 
 Ce bundle à pour finalité de tracker les actions des utilisateurs notamment : 
 - Les Login et les logout.
-- Les requêtes émisent. 
+- Les requêtes émisent.
 ## Configuration Obligatoire*
 
 	- Il faut unzipé le fichier "GeoLite2-City" dans vendor\Orcaformation\Orca\UserLogBundle, afin d'avoir le fichier sous le nom **GeoLite2-City.mmdb**

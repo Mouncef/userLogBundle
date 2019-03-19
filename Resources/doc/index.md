@@ -36,7 +36,115 @@ public function registerBundles()
         // ...
     );
 }
+
 ```
+
+### Créer une nouvelle entité dans votre bundle qui herite de TblUserModel
+
+```php
+//votreBundle/Entity
+
+use Doctrine\ORM\Mapping as ORM;
+use Orca\UserLogBundle\Model\TblUserModel;
+
+
+/**
+ * TblUserLog
+ *
+ * @ORM\Table(name="tbl_user_log")
+ * @ORM\Entity(repositoryClass="Acme\AppBundle\Repository\TblUserLogRepository")
+ *
+ */
+class TblUserLog extends TblUserModel
+{
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+}
+
+```
+
+### Créer un EventSubscriber qui herite de LogEventsSubscriber pour tracker les requêtes émises et les réponses recu
+
+```php
+
+// Acme\AppBundle\Subscriber;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Orca\UserLogBundle\Subscriber\LogEventsSubscriber;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+class LogEventSubscriber extends LogEventsSubscriber implements EventSubscriberInterface
+{
+
+    private $em;
+
+    public function __construct(ContainerInterface $container, EntityManagerInterface $em)
+    {
+        parent::__construct($container);
+        $this->em = $em;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return array(
+            KernelEvents::RESPONSE => 'onKernelResponse',
+            KernelEvents::EXCEPTION => 'onKernelException',
+            );
+    }
+
+    public function onKernelResponse(FilterResponseEvent $event)
+    {
+        $userLog = parent::onKernelResponse($event);
+    }
+
+    public function onKernelException(GetResponseForExceptionEvent $event)
+    {
+        $userLog = parent::onKernelException($event);
+    }
+```
+
+et ajouter le dans votre bundle service.yml
+
+```yaml
+
+Acme\Appbundle\Subscriber\LogEventSubscriber:
+        class: Acme\AppBundle\Subscriber\LogEventSubscriber
+        arguments:  ['@service_container', "@doctrine.orm.entity_manager"]
+        tags:
+            - { name: kernel.event_subscriber}
+			
+```
+
+
+
 ### Ajouter au config.yml
 
 Pour activer les extensions de doctrine ajouter au `config.yml` les lignes suivantes :
@@ -52,6 +160,13 @@ doctrine:
                 date_format: DoctrineExtensions\Query\Mysql\DateFormat
             string_functions:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
+				
+
+parameters:
+	userlog_entity: 'Acme\AppBundle\Entity\TblUserLog' #namespace de votre entité
+    userlog_repo: 'AcmeAppBundle:TblUserLog' #repository de votre entité de log
+    userlog_tbl: 'tbl_user_log' #le nom de la table dans la base de données
+    TblUserRepo: 'AcmeAppBundle:TblUser' #repository de votre entité utilisateur
 ```
 
 ### Ajouter au routing.yml
@@ -74,17 +189,6 @@ php bin/console assets:install
 
 ### Configuration
 
-Pour tracker les reqêtes émisent il faut ajouter aux services du projet la configuration suivante :
-
-```yaml
-#app/conﬁg/services.yml
-services:
-    Orca\UserLogBundle\EventListener\ResponseListener:
-            class: Orca\UserLogBundle\EventListener\ResponseListener
-            arguments:  ['@service_container']
-            tags:
-                - { name: kernel.event_listener, event: kernel.response, channel: security }
-```
 
 Pour tracker les login et les logout il faut ajouter les lignes suivantes au niveau du pare-feu de securité
 
@@ -97,6 +201,13 @@ firewalls:
             logout:
                 success_handler: orca_user_log.component.authentication.handler.logout_success_handler      # redirect, no_redirect, redirect_without_path
 ```
+
+si vous utilisez d'autre methodes de login vous devez suprimer les lignes form_login et ajouter ce ligne de code juste avant la redirection au page d'utilisateur
+
+```php
+	$this->get('Orca\UserLogBundle\Services\LoginSuccessService')->onLoginSuccess($request, $this->getParameter('userlog_entity'));
+```
+
 ### préparation route principale : userLog_homepage_login
 
 ```DefaultController
@@ -107,7 +218,7 @@ firewalls:
     public function indexAction(Request $request)
     {
 ```
-### Générer la table des Log : Tbl_User_Log
+### Générer la table des Log : ex: Tbl_User_Log
 ``` console 
 php bin/console doctrine:schema:update --dump-sql
 ```
