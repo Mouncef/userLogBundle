@@ -563,7 +563,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
     public function getAllActionsByUserIdByRange($start, $end, $id){
 
-        $sql = "SELECT l.`id`, l.`date`, l.`uri`, l.`user_id`, l.`error_code`
+        $sql = "SELECT l.`id`, l.`date`, l.`uri`, l.`user_id`, l.`error_code`, l.exception_msg
                 FROM `".$this->container->getParameter('userlog_tbl')."` l
                 WHERE l.`action` NOT LIKE :ws
                 AND l.`uri` NOT LIKE :api
@@ -578,21 +578,14 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('id', 'id');
         $rsm->addScalarResult('date', 'date');
-        //$rsm->addScalarResult('action', 'action');
         $rsm->addScalarResult('uri', 'uri');
-        //$rsm->addScalarResult('terminal_type', 'terminalType');
-        //$rsm->addScalarResult('ville', 'ville');
         $rsm->addScalarResult('user_id', 'user');
         $rsm->addScalarResult('error_code', 'errorCode');
-        //$rsm->addScalarResult('header', 'header');
-        //$rsm->addScalarResult('post_params', 'postParams');
-        //$rsm->addScalarResult('get_params', 'getParams');
+        $rsm->addScalarResult('exception_msg', 'exceptionMsg');
         $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters([
                 'start' => $start,
                 'end' => $end,
-                //'month' => $month,
-                //'year' => $year,
                 'id' => $id,
                 'ws'  =>  'Ws\\\%',
                 'api' =>  '%/api/%',

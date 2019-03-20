@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Orca\UserLogBundle\DB\GeoIPOrca;
 
-class LogEventsSubscriber implements EventSubscriberInterface
+class LogEventsSubscriber
 {
 
     protected $container;
@@ -41,13 +41,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        // return the subscribed events, their methods and priorities
-        return [
-            //KernelEvents::RESPONSE => 'onKernelResponse',
-            //KernelEvents::EXCEPTION => 'onKernelException',
-            //AuthenticationEvents::AUTHENTICATION_SUCCESS => 'onAuthenticationSuccess',
-            LoginSuccessfullEvent::LOGIN_SUCCESS => 'onAuthenticationSuccess',
-        ];
+
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event){
@@ -247,126 +241,130 @@ class LogEventsSubscriber implements EventSubscriberInterface
 
         //Get Status code
         $statusCode = $response->getStatusCode();
+        $errorCodes = array(400, 401, 402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,500,501,502,503,504,505);
         //var_dump($wdt,$masterRequest,$uri);die();
 
-        //&& $action == $controller && $action != null
-        if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
+        if (!in_array($statusCode, $errorCodes)){
+            //&& $action == $controller && $action != null
+            if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
 
-            //var_dump("test");die();
-            // get User()
+                //var_dump("test");die();
+                // get User()
 
-            if (is_null($security->getToken()))
-            {
-                if (empty($request->getSession())){
-                    $user = 0;
-                } elseif(empty($request->getSession()->get('connected'))) {
-                    $user = 0;
-                }else{
-                    $user = $request->getSession()->get('connected')->getUserId();
+                if (is_null($security->getToken()))
+                {
+                    if (empty($request->getSession())){
+                        $user = 0;
+                    } elseif(empty($request->getSession()->get('connected'))) {
+                        $user = 0;
+                    }else{
+                        $user = $request->getSession()->get('connected')->getUserId();
+                    }
+                } else {
+                    $user = $security->getToken()->getUser()->getUserId();
                 }
-            } else {
-                $user = $security->getToken()->getUser()->getUserId();
-            }
 
 
-            if ($em->isOpen()){
-                // inserting
-                //!empty($routeName) &&
-                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
+                if ($em->isOpen()){
+                    // inserting
+                    //!empty($routeName) &&
+                    if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
 
 
-                    //$userLog = new TblUserLog();
-                    $var = $this->container->getParameter('userlog_entity');
-                    $userLog = new $var();
-                    //var_dump($userLog);die();
+                        //$userLog = new TblUserLog();
+                        $var = $this->container->getParameter('userlog_entity');
+                        $userLog = new $var();
+                        //var_dump($userLog);die();
 
 
-                    $userLog->setDate(new \DateTime('now'));
+                        $userLog->setDate(new \DateTime('now'));
 
-                    if ($routeName == null){
-                        $routeName = "No Route !";
-                    }
-                    $userLog->setRouteName($routeName);
-                    if ($action == null){
-                        $action = "No Action !";
-                    }
+                        if ($routeName == null){
+                            $routeName = "No Route !";
+                        }
+                        $userLog->setRouteName($routeName);
+                        if ($action == null){
+                            $action = "No Action !";
+                        }
 
                         $userLog->setAction($action);
 
 
-                    if (strpos($uri,"processlist")!= false){
-                        $uri = '/userLogChart/processlist';
-                    }
-                    $userLog->setUri($uri);
+                        if (strpos($uri,"processlist")!= false){
+                            $uri = '/userLogChart/processlist';
+                        }
+                        $userLog->setUri($uri);
 
-                    $userLog->setUser($user);
-                    $userLog->setIp($ip);
+                        $userLog->setUser($user);
+                        $userLog->setIp($ip);
 
-                    if ($ip == '::1' or $ip == '127.0.0.1') {
-                        $userLog->setPays('Localhost');
-                        $userLog->setVille('Localhost');
-                        $userLog->setCodePays('Localhost');
-                    } else {
-                        $geoIPORCA = new GeoIPOrca();
-                        $vars = $geoIPORCA->getInfoIP();
-                        $userLog->setPays($vars['country']);
-                        $userLog->setVille($vars['city']);
-                        $userLog->setCodePays($vars['isoCode']);
-                    }
-
-
-                    if ($terminalDetector->isTablet()) {
-                        $userLog->setTerminal('Tablet');
-
-                        if ($terminalDetector->isIOS()){
-                            $userLog->setTerminalType('IOS');
-                        } elseif ($terminalDetector->isAndroidOs()){
-                            $userLog->setTerminalType('Android');
-                        } elseif ($terminalDetector->isWindowsMobileOs()) {
-                            $userLog->setTerminalType('Windows Phone');
+                        if ($ip == '::1' or $ip == '127.0.0.1') {
+                            $userLog->setPays('Localhost');
+                            $userLog->setVille('Localhost');
+                            $userLog->setCodePays('Localhost');
                         } else {
-                            $userLog->setTerminalType('OS non reconnu !');
+                            $geoIPORCA = new GeoIPOrca();
+                            $vars = $geoIPORCA->getInfoIP();
+                            $userLog->setPays($vars['country']);
+                            $userLog->setVille($vars['city']);
+                            $userLog->setCodePays($vars['isoCode']);
                         }
 
-                    } elseif ($terminalDetector->isMobile()) {
-                        $userLog->setTerminal('Mobile');
 
-                        if ($terminalDetector->isIOS()){
-                            $userLog->setTerminalType('IOS');
-                        } elseif ($terminalDetector->isAndroidOs()){
-                            $userLog->setTerminalType('Android');
-                        } elseif ($terminalDetector->isWindowsMobileOs()) {
-                            $userLog->setTerminalType('Windows Phone');
+                        if ($terminalDetector->isTablet()) {
+                            $userLog->setTerminal('Tablet');
+
+                            if ($terminalDetector->isIOS()){
+                                $userLog->setTerminalType('IOS');
+                            } elseif ($terminalDetector->isAndroidOs()){
+                                $userLog->setTerminalType('Android');
+                            } elseif ($terminalDetector->isWindowsMobileOs()) {
+                                $userLog->setTerminalType('Windows Phone');
+                            } else {
+                                $userLog->setTerminalType('OS non reconnu !');
+                            }
+
+                        } elseif ($terminalDetector->isMobile()) {
+                            $userLog->setTerminal('Mobile');
+
+                            if ($terminalDetector->isIOS()){
+                                $userLog->setTerminalType('IOS');
+                            } elseif ($terminalDetector->isAndroidOs()){
+                                $userLog->setTerminalType('Android');
+                            } elseif ($terminalDetector->isWindowsMobileOs()) {
+                                $userLog->setTerminalType('Windows Phone');
+                            } else {
+                                $userLog->setTerminalType('OS non reconnu !');
+                            }
+
                         } else {
-                            $userLog->setTerminalType('OS non reconnu !');
+                            $userLog->setTerminal('Desktop');
+                            $userLog->setTerminalType('Navigateur Web');
                         }
 
-                    } else {
-                        $userLog->setTerminal('Desktop');
-                        $userLog->setTerminalType('Navigateur Web');
+                        $userLog->setErrorCode($statusCode);
+
+                        /*$errorCodes = array(400, 401, 402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,500,501,502,503,504,505);
+
+                        if (in_array($statusCode, $errorCodes)){
+                            $exceptionMsg = $response->getContent();
+                            $userLog->setExceptionMsg($exceptionMsg);
+                        }*/
+
+
+
+                        $userLog->setHeader(json_encode($header));
+                        $userLog->setPostParams(json_encode($postParameters));
+                        $userLog->setGetParams(json_encode($getParameters));
+                        //dump($userLog);die();
+                        $em->persist($userLog);
+                        $em->flush();
+
+                        return $userLog;
                     }
-
-                    $userLog->setErrorCode($statusCode);
-
-                    /*$errorCodes = array(400, 401, 402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,500,501,502,503,504,505);
-
-                    if (in_array($statusCode, $errorCodes)){
-                        $exceptionMsg = $response->getContent();
-                        $userLog->setExceptionMsg($exceptionMsg);
-                    }*/
-
-
-
-                    $userLog->setHeader(json_encode($header));
-                    $userLog->setPostParams(json_encode($postParameters));
-                    $userLog->setGetParams(json_encode($getParameters));
-                    //dump($userLog);die();
-                    $em->persist($userLog);
-                    $em->flush();
-
-                   return $userLog;
                 }
             }
         }
+
     }
 }
