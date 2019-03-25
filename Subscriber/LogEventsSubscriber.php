@@ -8,7 +8,7 @@
 
 namespace Orca\UserLogBundle\Subscriber;
 
-//use Orca\UserLogBundle\Entity\TblUserLog;
+use Orca\UserLogBundle\Entity\TblUserLog;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Exception\InvalidFieldNameException;
@@ -86,11 +86,17 @@ class LogEventsSubscriber
             // get User()
 
             //Get Status codev
-            if ($exception instanceof ContextErrorException || $exception instanceof BadMethodCallException || $exception instanceof ORMException || $exception instanceof UndefinedFunctionException || $exception instanceof \LogicException ||$exception instanceof SyntaxErrorException || $exception instanceof InvalidFieldNameException
+            /*if ($exception instanceof ContextErrorException || $exception instanceof BadMethodCallException || $exception instanceof ORMException || $exception instanceof UndefinedFunctionException || $exception instanceof \LogicException ||$exception instanceof SyntaxErrorException || $exception instanceof InvalidFieldNameException
                 || $exception instanceof \UnexpectedValueException || $exception instanceof \Doctrine\DBAL\Exception\DriverException || $exception instanceof DBALException){
                 $statusCode = 500;
             }else{
+                //$statusCode = $exception->getStatusCode();
+            }*/
+
+            if (method_exists($exception, 'getStatusCode')){
                 $statusCode = $exception->getStatusCode();
+            }else{
+                $statusCode = 500;
             }
 
             if (is_null($security->getToken()))
@@ -113,10 +119,12 @@ class LogEventsSubscriber
                 if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
 
 
-                    //$userLog = new TblUserLog();
-                    $var = $this->container->getParameter('userlog_entity');
-                    $userLog = new $var();
-                    //var_dump($userLog);die();
+                    if ($this->container->getParameter('userlog_entity') == 'default'){
+                        $userLog = new TblUserLog();
+                    }else{
+                        $var = $this->container->getParameter('userlog_entity');
+                        $userLog = new $var();
+                    }
 
 
                     $userLog->setDate(new \DateTime('now'));
@@ -271,9 +279,14 @@ class LogEventsSubscriber
                     if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
 
 
-                        //$userLog = new TblUserLog();
-                        $var = $this->container->getParameter('userlog_entity');
-                        $userLog = new $var();
+                        //
+                        if ($this->container->getParameter('userlog_entity') == 'default'){
+                            $userLog = new TblUserLog();
+                        }else{
+                            $var = $this->container->getParameter('userlog_entity');
+                            $userLog = new $var();
+                        }
+
                         //var_dump($userLog);die();
 
 

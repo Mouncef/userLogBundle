@@ -119,6 +119,11 @@ class TblUserLog
     private $getParams;
 
     /**
+     * @ORM\Column(name="exception_msg", type="text", nullable=true)
+     */
+    protected $exceptionMsg;
+
+    /**
      * Get id
      *
      * @return int
@@ -366,6 +371,22 @@ class TblUserLog
     public function setGetParams($getParams)
     {
         $this->getParams = $getParams;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExceptionMsg()
+    {
+        return $this->exceptionMsg;
+    }
+
+    /**
+     * @param mixed $exceptionMsg
+     */
+    public function setExceptionMsg($exceptionMsg)
+    {
+        $this->exceptionMsg = $exceptionMsg;
     }
 }
 

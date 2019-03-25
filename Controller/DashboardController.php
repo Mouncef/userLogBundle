@@ -77,8 +77,8 @@ class DashboardController extends Controller
 
         for($i = 0 ; $i< count($topfiveUsers) ; $i++){
             if(!in_array($topfiveUsers[$i]['user'] , $users)){
-                $user = $em->getRepository($this->getParameter('TblUserRepo'))->findOneBy(['userId' => $topfiveUsers[$i]['user']]);
-                $username = $user->getUserNom() ." ". $user->getUserPrenom();
+                $user = $em->getRepository($this->getParameter('TblUserRepo'))->find($topfiveUsers[$i]['user']);
+                $username = $user->__toString();
                 //var_dump($username);die;
                 $users[$index++] = $username;//$topfiveUsers[$i]['user'];
                 if($topfiveUsers[$i]['terminalType'] == 'Navigateur Web'){
@@ -179,10 +179,11 @@ class DashboardController extends Controller
         $em = $this->getDoctrine()->getManager();
         $users = $em->getRepository($this->getParameter('TblUserRepo'))->findAll();
 
-        $actions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getBoActions($start, $end);
+        //$actions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getBoActions($start, $end);
+
 
         return $this->render('@OrcaUserLog/Demo/boActions.html.twig', [
-            'actions'        => $actions,
+            //'actions'        => $actions,
             'host'          => $host,
             'users' => $users
         ]);
@@ -308,6 +309,76 @@ class DashboardController extends Controller
             return new Response("<h2 style='text-align: center;'>Aucune donnée trouvée pour l'utilisateur choisi !</h2>");
         }
 
+    }
+    
+    public function getBoActionsAjaxAction(Request $request){
+
+        //var_dump($request);die();
+        $draw = $request->get('draw');
+        $offset = $request->get('start');
+        $limit = $request->get('length');
+        $search = $request->get('search');
+
+        $order = $request->get('order');
+        $dir = $order[0]['dir'];
+        $iCol = $order[0]['column'];
+
+        $date = new \DateTime('now');
+        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->container->getParameter('userlog_nbdays').' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository($this->getParameter('TblUserRepo'))->findAll();
+
+        $result=[];
+        $actions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getBoActions($start, $end, $search, $dir, $iCol);
+        $countActions = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getCountBoActions($start, $end, $search, $dir, $iCol);
+        $result = [
+            'draw'  =>  $draw,
+            'recordsFiltered'   =>  $countActions,
+            'recordsTotal'   =>  $countActions,
+        ];
+
+
+//var_dump(count($actions));die;
+        if (count($actions) > 0){
+            foreach ($actions as $i=> $a){
+                $j = (int)$offset + (int)$limit;
+                if ($i>=$offset && $i < $j){
+                    $action = $this->get('Orca\UserLogBundle\Repository\TblUserLogRepository')->getBoActionsAjax($start, $end, $a['id']);//$a['id']
+
+                    //$action = $qb->getQuery()->getSingleResult();
+
+                    $result['data'][] = [
+                        'id' => $action['id'],
+                        'Date' => $action['date'],
+                        'Utilisateur' => $action['user'],
+                        'URL' => $action['uri'],
+                        'Header' => $action['header'],
+                        'Post' => $action['postParams'],
+                        'Get' => $action['getParams'],
+                        'Terminal' => $action['terminalType'],
+                        'Zone' => $action['ville'],
+                        'Host' => $host
+                    ];
+                }
+            }
+        }else{
+            $result['data'] = [];
+        }
+
+        //var_dump($result);die;
+        return new JsonResponse($result);
     }
 
 }

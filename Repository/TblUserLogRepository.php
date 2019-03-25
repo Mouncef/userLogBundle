@@ -262,7 +262,187 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getBoActions($start, $end)
+    public function getBoActions($start, $end, $search = null, $dir = null, $iCol = null)
+    {
+
+        $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
+                WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`action` NOT LIKE :ws
+                AND l.`uri` NOT LIKE :api
+                AND l.`uri` NOT LIKE :log
+                AND l.`uri` NOT LIKE :draw
+                AND l.`user_id` != 0
+                AND l.`route_name` NOT LIKE :login
+                AND l.`route_name` NOT LIKE :logout
+                AND l.`date` >= :start
+                AND l.`date` <= :dateend"
+        ;
+            if (!empty($search['value'])){
+                $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+            }
+
+
+        if ($dir == null)
+            $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+                break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+                break;
+            case 3:
+                $sql .= " ORDER BY l.`uri` $dir";
+                break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+                break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+                break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+                break;
+            case 7:
+                $sql .= " ORDER BY l.`terminal_type` $dir";
+                break;
+            case 8:
+                $sql .= " ORDER BY l.`ville` $dir";
+                break;
+        }
+        //
+        //        -- AND DATE_FORMAT(l.`date`, "%d") >= :days
+        //    -- AND DATE_FORMAT(l.`date`, "%m") = :mois
+        //    -- AND DATE_FORMAT(l.`date`, "%Y") = :annee
+//        var_dump($dir);die;
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('date', 'date');
+        $rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'uri');
+        $rsm->addScalarResult('terminal_type', 'terminalType');
+        $rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('error_code', 'errorCode');
+        $rsm->addScalarResult('header', 'header');
+        $rsm->addScalarResult('post_params', 'postParams');
+        $rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameters([
+                'start'    =>  $start,
+                'dateend'    =>  $end,
+//                'dir' => $dir,
+                'search' => "%".$search['value']."%",
+                'ws'  =>  'Ws\\\%',
+                'api' =>  '%/api/%',
+                'login' => 'login_check',
+                'logout' => 'logout',
+                'log' =>  '%/userLogChart/%',
+                'draw'  =>  '%draw%'
+            ])
+        ;
+//        var_dump($query->getSQL());die();
+        return $query->getResult();
+    }
+
+    public function getCountBoActions($start, $end, $search = null, $dir = null, $iCol = null)
+    {
+
+        $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
+                FROM `".$this->container->getParameter('userlog_tbl')."` l
+                WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`action` NOT LIKE :ws
+                AND l.`uri` NOT LIKE :api
+                AND l.`uri` NOT LIKE :log
+                AND l.`uri` NOT LIKE :draw
+                AND l.`user_id` != 0
+                AND l.`route_name` NOT LIKE :login
+                AND l.`route_name` NOT LIKE :logout
+                AND l.`date` >= :start
+                AND l.`date` <= :dateend"
+        ;
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+        }
+
+
+        if ($dir == null)
+            $sql .= " ORDER BY l.`date` desc";
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+                break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+                break;
+            case 3:
+                $sql .= " ORDER BY l.`uri` $dir";
+                break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+                break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+                break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+                break;
+            case 7:
+                $sql .= " ORDER BY l.`terminal_type` $dir";
+                break;
+            case 8:
+                $sql .= " ORDER BY l.`ville` $dir";
+                break;
+        }
+        //
+        //        -- AND DATE_FORMAT(l.`date`, "%d") >= :days
+        //    -- AND DATE_FORMAT(l.`date`, "%m") = :mois
+        //    -- AND DATE_FORMAT(l.`date`, "%Y") = :annee
+//        var_dump($dir);die;
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('date', 'date');
+        $rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'uri');
+        $rsm->addScalarResult('terminal_type', 'terminalType');
+        $rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('error_code', 'errorCode');
+        $rsm->addScalarResult('header', 'header');
+        $rsm->addScalarResult('post_params', 'postParams');
+        $rsm->addScalarResult('get_params', 'getParams');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameters([
+                'start'    =>  $start,
+                'dateend'    =>  $end,
+//                'dir' => $dir,
+                'search' => "%".$search['value']."%",
+                'ws'  =>  'Ws\\\%',
+                'api' =>  '%/api/%',
+                'login' => 'login_check',
+                'logout' => 'logout',
+                'log' =>  '%/userLogChart/%',
+                'draw'  =>  '%draw%'
+            ])
+        ;
+        //var_dump(count($query->getResult()));die();
+        return count($query->getResult());
+    }
+
+    public function getBoActionsAjax($start, $end, $id)
     {
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
                 FROM `".$this->container->getParameter('userlog_tbl')."` l
@@ -276,6 +456,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`route_name` NOT LIKE :logout
                 AND l.`date` >= :start
                 AND l.`date` <= :end
+                AND l.`id` = :id
                 ORDER BY l.`date` DESC"
         ;
         //
@@ -299,6 +480,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ->setParameters([
                 'start'    =>  $start,
                 'end'    =>  $end,
+                'id' => $id,
                 'ws'  =>  'Ws\\\%',
                 'api' =>  '%/api/%',
                 'login' => 'login_check',
@@ -308,7 +490,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             ])
         ;
 
-        return $query->getResult();
+        return $query->getSingleResult();
     }
 
     public function getWsActions($start, $end)

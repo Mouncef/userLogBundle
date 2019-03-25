@@ -52,3 +52,7 @@ dashboard_speedtest:
 dashboard_ajaxuseractions:
     path:     /timeLine
     defaults: { _controller: OrcaUserLogBundle:Dashboard:timeLine }
+
+dashboard_get_bo_actions_ajax:
+  path:     /boActionsAjax
+  defaults: { _controller: OrcaUserLogBundle:Dashboard:getBoActionsAjax }
