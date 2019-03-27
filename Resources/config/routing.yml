@@ -17,6 +17,10 @@ dashboard_index:
     path:   /dashboard
     defaults:  { _controller: OrcaUserLogBundle:Dashboard:index }
 
+dashboard_index_:
+    path:   /
+    defaults:  { _controller: OrcaUserLogBundle:Dashboard:index }
+
 dashboard_connexion:
     path:     /connexions
     defaults: { _controller: OrcaUserLogBundle:Dashboard:connexion }

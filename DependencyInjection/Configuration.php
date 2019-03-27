@@ -19,11 +19,12 @@ class Configuration implements ConfigurationInterface
     {
 
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('orca_user_log');
-
-        $rootNode
+        $treeBuilder->root('orca_user_log')
             ->children()
-                ->scalarNode('tbl_log')
+                ->scalarNode('userlog_entity')->defaultValue('Orca\UserLogBundle\Entity\TblUserLog')->end()
+                ->scalarNode('userlog_repository')->defaultValue('OrcaUserLogBundle:TblUserLog')->end()
+                ->scalarNode('table_name')->defaultValue('tbl_user_log')->end()
+                ->scalarNode('user_class')->isRequired()->end()
             ->end()
         ;
 

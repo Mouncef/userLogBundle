@@ -43,11 +43,14 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
+        die('login');
+
         $user = $token->getUser();
         $ip = $request->getClientIp();
 
 
-        $userLog = new TblUserLog();
+        $var = $this->container->getParameter('orca_user_log.userlog_entity');
+        $userLog = new $var();
 
         $userLog->setUser($user->getUserId());
         $userLog->setDate(new \DateTime('now'));
@@ -118,4 +121,5 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
         return $response;
     }
+
 }

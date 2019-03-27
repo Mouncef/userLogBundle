@@ -2,12 +2,12 @@
 
 namespace Orca\UserLogBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-//use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader;
-
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\Definition\Processor;
 /**
  * This is the class that loads and manages your bundle configuration.
  *
@@ -20,10 +20,14 @@ class OrcaUserLogExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $processor = new Processor();
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $config = $processor->processConfiguration($configuration, $configs);
+        $container->setParameter('orca_user_log.userlog_entity', $config['userlog_entity']);
+        $container->setParameter('orca_user_log.userlog_repository', $config['userlog_repository']);
+        $container->setParameter('orca_user_log.table_name', $config['table_name']);
+        $container->setParameter('orca_user_log.user_class', $config['user_class']);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
 

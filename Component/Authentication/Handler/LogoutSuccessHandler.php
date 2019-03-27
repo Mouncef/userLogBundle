@@ -45,7 +45,6 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
     
     public function onLogoutSuccess(Request $request)
     {
-
         if(is_null($this->storage->getToken())){
             $user = $request->getSession()->get('connected')->getUserId();
         } else {
@@ -54,7 +53,7 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
 
         $ip = $request->getClientIp();
 
-        $var = $this->container->getParameter('userlog_entity');
+        $var = $this->container->getParameter('orca_user_log.userlog_entity');
         $userLog = new $var();
 
         $userLog->setUser($user);

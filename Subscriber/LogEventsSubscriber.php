@@ -8,28 +8,14 @@
 
 namespace Orca\UserLogBundle\Subscriber;
 
-use Orca\UserLogBundle\Entity\TblUserLog;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Exception\InvalidFieldNameException;
-use Doctrine\DBAL\Exception\SyntaxErrorException;
-use Doctrine\ORM\ORMException;
-use http\Exception\BadMethodCallException;
-use Orca\UserLogBundle\Event\LoginSuccessfullEvent;
-use Symfony\Component\Debug\Exception\ContextErrorException;
-use Symfony\Component\Debug\Exception\UndefinedFunctionException;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Security\Core\AuthenticationEvents;
-use Symfony\Component\Security\Core\Event\AuthenticationEvent;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Orca\UserLogBundle\DB\GeoIPOrca;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class LogEventsSubscriber
+class LogEventsSubscriber implements EventSubscriberInterface
 {
 
     protected $container;
@@ -41,9 +27,11 @@ class LogEventsSubscriber
 
     public static function getSubscribedEvents()
     {
-
+        return array(
+            KernelEvents::RESPONSE  => 'onKernelResponse',
+            KernelEvents::EXCEPTION => 'onKernelException',
+        );
     }
-
     public function onKernelException(GetResponseForExceptionEvent $event){
         //var_dump($event);die();
         $controller = $event->getRequest()->attributes->get('_controller');
@@ -119,12 +107,12 @@ class LogEventsSubscriber
                 if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
 
 
-                    if ($this->container->getParameter('userlog_entity') == 'default'){
-                        $userLog = new TblUserLog();
-                    }else{
-                        $var = $this->container->getParameter('userlog_entity');
+//                    if ($this->container->getParameter('userlog_entity') == 'default'){
+//                        $userLog = new TblUserLog();
+//                    }else{
+                        $var = $this->container->getParameter('orca_user_log.userlog_entity');
                         $userLog = new $var();
-                    }
+//                    }
 
 
                     $userLog->setDate(new \DateTime('now'));
@@ -212,10 +200,6 @@ class LogEventsSubscriber
         }
     }
 
-    public function onAuthenticationSuccess(LoginSuccessfullEvent $event){
-        //var_dump($event);die();
-    }
-
     public function onKernelResponse(FilterResponseEvent $event)
     {
         //var_dump($event->getResponse());
@@ -280,12 +264,12 @@ class LogEventsSubscriber
 
 
                         //
-                        if ($this->container->getParameter('userlog_entity') == 'default'){
-                            $userLog = new TblUserLog();
-                        }else{
-                            $var = $this->container->getParameter('userlog_entity');
+//                        if ($this->container->getParameter('userlog_entity') == 'default'){
+//                            $userLog = new TblUserLog();
+//                        }else{
+                            $var = $this->container->getParameter('orca_user_log.userlog_entity');
                             $userLog = new $var();
-                        }
+//                        }
 
                         //var_dump($userLog);die();
 

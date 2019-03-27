@@ -37,11 +37,11 @@ services:
         tags:
           - { name: twig.extension }
 
-#    Orca\UserLogBundle\Subscriber\LogEventsSubscriber:
-#        class: Orca\UserLogBundle\Subscriber\LogEventsSubscriber
-#        arguments:  ['@service_container']
-#        tags:
-#          - { name: kernel.event_subscriber}
+    Orca\UserLogBundle\Subscriber\LogEventsSubscriber:
+        class: Orca\UserLogBundle\Subscriber\LogEventsSubscriber
+        arguments:  ['@service_container']
+        tags:
+          - { name: kernel.event_subscriber}
 
     Orca\UserLogBundle\Repository\TblUserLogRepository:
         class: Orca\UserLogBundle\Repository\TblUserLogRepository
