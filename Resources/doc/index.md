@@ -23,6 +23,19 @@ Ajouter au `composer.json` les lignes suivantes:
 et executer la commande:
 `composer update "Orcaformation" `
 
+
+### Migration de l'ancienne version
+
+supprimer le paramétrage du service, ResponseListener is removed
+```yaml
+# app/services.yml
+    Orca\UserLogBundle\EventListener\ResponseListener:
+        class: Orca\UserLogBundle\EventListener\ResponseListener
+        arguments:  ['@service_container']
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, channel: security }
+```
+
 ### Ajouter ce bundle au kernel
 
 ```php
@@ -38,51 +51,78 @@ public function registerBundles()
 }
 
 ```
+### Parameteres - app/config.yml
+Il faut totalement définir l'entité Utilisateur, et de rajouter les getters suivants :
+```php
+    public function getUserId()
+    {
+        return $this->id;
+    }
+    public function getFirstName()
+    {
+        return $this->userNom;
+    }
+    public function getLastName()
+    {
+        return $this->userPrenom;
+    }
 
-### Créer une nouvelle entité dans votre bundle qui herite de TblUserModel
+    function __toString(){
+        return $this->getFirstName().' '.$this->getLastName();
+    }
+```
+
+```yaml
+orca_user_log:
+    user_class: BackendAppBundle:TblUser #required
+```
+
+Pour modifier et/ou écraser les services du bundle, il faut spécifier les params suivants
+```yaml
+orca_user_log:
+    //...
+    userlog_entity: Acme\AppBundle\Entity\TblUserLog #optional
+    userlog_repository: AcmeAppBundle:TblUserLog #optional
+    table_name: tbl_user_log #optional
+```
+
+### Créer une nouvelle entité dans votre bundle qui herite de l'entité TblUserLog
+
+Le bundle gére les modifs faite sur l'entité [le même principe de doctrine migration].
 
 ```php
 //votreBundle/Entity
 
 use Doctrine\ORM\Mapping as ORM;
-use Orca\UserLogBundle\Model\TblUserModel;
+use Orca\UserLogBundle\Entity\TblUserLog;
 
 
 /**
  * TblUserLog
  *
- * @ORM\Table(name="tbl_user_log")
  * @ORM\Entity(repositoryClass="Acme\AppBundle\Repository\TblUserLogRepository")
  *
  */
-class TblUserLog extends TblUserModel
+class TblUserLog extends TblUserLog
 {
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
+    //...
+   public function getUserId()
+       {
+           return $this->id;
+       }
+       public function getFirstName()
+       {
+           return $this->userNom;
+       }
+       public function getLastName()
+       {
+           return $this->userPrenom;
+       }
+   
+       function __toString(){
+           return $this->getFirstName().' '.$this->getLastName();
+       }
 }
 
 ```
@@ -112,22 +152,16 @@ class LogEventSubscriber extends LogEventsSubscriber implements EventSubscriberI
         $this->em = $em;
     }
 
-    public static function getSubscribedEvents()
-    {
-        return array(
-            KernelEvents::RESPONSE => 'onKernelResponse',
-            KernelEvents::EXCEPTION => 'onKernelException',
-            );
-    }
-
     public function onKernelResponse(FilterResponseEvent $event)
     {
-        $userLog = parent::onKernelResponse($event);
+        parent::onKernelResponse($event);
+        //...autre traitement
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        $userLog = parent::onKernelException($event);
+        parent::onKernelException($event);
+        //...autre traitement
     }
 ```
 
@@ -159,12 +193,6 @@ doctrine:
                 date_format: DoctrineExtensions\Query\Mysql\DateFormat
             string_functions:
                 group_concat: DoctrineExtensions\Query\Mysql\GroupConcat
-
-parameters:
-    userlog_entity: 'Acme\AppBundle\Entity\TblUserLog' #namespace de votre entité
-    userlog_repo: 'AcmeAppBundle:TblUserLog' #repository de votre entité de log
-    userlog_tbl: 'tbl_user_log' #le nom de la table dans la base de données
-    TblUserRepo: 'AcmeAppBundle:TblUser' #repository de votre entité utilisateur
 ```
 
 ### Ajouter au routing.yml
@@ -188,7 +216,9 @@ php bin/console assets:install
 ### Configuration
 
 
-Pour tracker les login et les logout il faut ajouter les lignes suivantes au niveau du pare-feu de securité
+Pour tracker les login et les logout il faut ajouter les lignes suivantes au niveau du pare-feu de securité - la section qui gère la connexion 
+
+##### connexion avec Symfony authentification :
 
 ```yaml
 #app/config/security.yml
@@ -197,14 +227,28 @@ firewalls:
             form_login:
                 success_handler: orca_user_log.component.authentication.handler.login_success_handler
             logout:
+                success_handler: orca_user_log.component.authentication.handler.logout_success_handler
+```
+##### connexion avec FOS user :
+```yaml
+#app/config/security.yml
+firewalls:
+        main:
+            pattern: ^/
+           //...
+            form_login:
+                provider: fos_userbundle
+                //...
+                success_handler: orca_user_log.component.authentication.handler.login_success_handler
+            logout:
+                path: fos_user_security_logout
+                target: fos_user_security_login
                 success_handler: orca_user_log.component.authentication.handler.logout_success_handler      # redirect, no_redirect, redirect_without_path
+            logout:       true
+            anonymous:    false
+            provider: fos_userbundle
 ```
 
-si vous utilisez d'autre methodes de login vous devez suprimer les lignes form_login et ajouter ce ligne de code juste avant la redirection au page d'utilisateur
-
-```php
-	$this->get('Orca\UserLogBundle\Services\LoginSuccessService')->onLoginSuccess($request, $this->getParameter('userlog_entity'));
-```
 
 ### préparation route principale : userLog_homepage_login
 
@@ -217,48 +261,11 @@ si vous utilisez d'autre methodes de login vous devez suprimer les lignes form_l
     {
 ```
 ### Générer la table des Log : ex: Tbl_User_Log
-``` console 
-php bin/console doctrine:schema:update --dump-sql
-```
 
-Récupere le code sql de la table et l'éxecuter au niveau du SGBD ou utiliser la commande suivante :
- 
-``` console
-php bin/console doctrine:schema:update --force
-```
-ou executer la requête suivante : 
-``` sql
-CREATE TABLE `tbl_user_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` datetime NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `pays` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `code_pays` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ip` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ville` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `terminal` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `action` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `route_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `uri` longtext COLLATE utf8_unicode_ci,
-  `error_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `terminal_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `header` longtext COLLATE utf8_unicode_ci,
-  `post_params` longtext COLLATE utf8_unicode_ci,
-  `get_params` longtext COLLATE utf8_unicode_ci,
-  `json_response` text COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-```
+le Bundle gère la creation et la modification des la table `tbl_user_log` du la première installation du bundle, sans utilisé ` doctrine:schema:update`.
+
 ### Ajouter à votre entité la méthode getUserId() si elle n'existe Pas
-```User Entity
-    class User {
-    ...
-        public function getUserId()
-        {
-           return $this->id;
-        }
-    }
-```
+
 ### Mettre le bundle hors pare-feu
 ```yaml
 #app/config/security.yml
