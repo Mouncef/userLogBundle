@@ -208,28 +208,45 @@ class DashboardController extends Controller
 
     public function wsAction(Request $request) {
 
+//        $date = new \DateTime('now');
+//        $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
+//        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+//        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
+//        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
+//        $nbday = '-'.$this->userlog_nbdays.' day';
+//        if(is_null($nbday)){
+//            $nbday = '-4 day';
+//        }
+//        $mdate = $date->modify($nbday);
+//        $month = date_format($mdate, 'm');
+//        $year = date_format($mdate, 'Y');
+//        $day = date_format($mdate, 'd');
+//
+//        $em = $this->getDoctrine()->getManager();
+//        $host = $request->getHttpHost();
         $date = new \DateTime('now');
         $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
         $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
-        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
-        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
         $nbday = '-'.$this->userlog_nbdays.' day';
         if(is_null($nbday)){
             $nbday = '-4 day';
         }
         $mdate = $date->modify($nbday);
-        $month = date_format($mdate, 'm');
-        $year = date_format($mdate, 'Y');
-        $day = date_format($mdate, 'd');
 
         $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
-        $errors = $this->get(self::REPO_AS_SERVICE)->getWsActions($start, $end);
+        $em = $this->getDoctrine()->getManager();
+
+        //$errors = $this->get(self::REPO_AS_SERVICE)->getWsActions($start, $end);
 
         return $this->render('@OrcaUserLog/Demo/wsActions.html.twig', [
-            'errors'        => $errors,
-            'host'          => $host
+           // 'errors'        => $errors,
+            'host'          => $host,
+            'date_start' => $start,
+            'date_end' => $end
         ]);
     }
 
@@ -360,6 +377,57 @@ class DashboardController extends Controller
         $result=[];
         $actions = $this->get(self::REPO_AS_SERVICE)->getBoActions($start, $end, $search, $dir, $iCol,$offset,$limit);
         $countActions = $this->get(self::REPO_AS_SERVICE)->getCountBoActions($start, $end, $search, $dir, $iCol);
+        $result = [
+            'draw'  =>  $draw,
+            'recordsFiltered'   =>  $countActions,
+            'recordsTotal'   =>  $countActions,
+        ];
+
+        if (count($actions) > 0){
+            foreach ($actions as $i=> $action){
+                    $action['Host'] = $host;
+                    $result['data'][] = $action;
+                }
+        }else{
+            $result['data'] = [];
+        }
+        return new JsonResponse($result);
+    }
+
+    public function getWSActionsAjaxAction(Request $request){
+
+        //var_dump($request);die();
+        $draw = $request->get('draw');
+        $offset = trim($request->get('start'));
+        $limit = trim($request->get('length'));
+        $search = $request->get('search');
+
+        $order = $request->get('order');
+        $dir = $order[0]['dir'];
+        $iCol = $order[0]['column'];
+
+        $date = new \DateTime('now');
+        $startDate = new \DateTime($date->format('Y-m-01'));
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->userlog_nbdays.' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository($this->user_class)->findAll();
+
+        $result=[];
+        //$actions = $this->get(self::REPO_AS_SERVICE)->getBoActions($start, $end, $search, $dir, $iCol,$offset,$limit);
+        $actions = $this->get(self::REPO_AS_SERVICE)->getWsActions($start, $end, $search, $dir, $iCol,$offset,$limit);
+        $countActions = $this->get(self::REPO_AS_SERVICE)->getCountWsActions($start, $end, $search, $dir, $iCol);
+        //$countActions = $this->get(self::REPO_AS_SERVICE)->getCountBoActions($start, $end, $search, $dir, $iCol);
         $result = [
             'draw'  =>  $draw,
             'recordsFiltered'   =>  $countActions,

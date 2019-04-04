@@ -501,19 +501,60 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getSingleResult();
     }
 
-    public function getWsActions($start, $end)
+    public function getWsActions($start, $end, $search = null, $dir = null, $iCol = null, $offset=0, $limit=10)
     {
 
-        $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
+        $sql = "SELECT l.`id`, l.`date`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
                 FROM `".$this->table_name."` l
                 WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`action` LIKE :ws
                 AND l.`uri` LIKE :api
                 AND l.`user_id` != 0
                 AND l.`date` >= :start
-                AND l.`date` <= :end
-                ORDER BY l.`date` DESC"
+                AND l.`date` <= :end"
         ;
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+        }
+
+
+
+        if ($dir == null)
+            $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+            break;
+            case 3:
+                $sql .= " ORDER BY l.`uri` $dir";
+            break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+            break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+            break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+            break;
+            case 7:
+                $sql .= " ORDER BY l.`terminal_type` $dir";
+            break;
+            case 8:
+                $sql .= " ORDER BY l.`ville` $dir";
+            break;
+        }
+
+        $sql .=" LIMIT :lf OFFSET :off";
 
         //        AND DATE_FORMAT(l.`date`, "%d") >= :days
         //        AND DATE_FORMAT(l.`date`, "%m") = :mois
@@ -521,16 +562,16 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('id', 'id');
-        $rsm->addScalarResult('date', 'date');
-        $rsm->addScalarResult('action', 'action');
-        $rsm->addScalarResult('uri', 'uri');
-        $rsm->addScalarResult('terminal_type', 'terminalType');
-        $rsm->addScalarResult('ville', 'ville');
-        $rsm->addScalarResult('user_id', 'user');
+        $rsm->addScalarResult('date', 'Date');
+        //$rsm->addScalarResult('action', 'action');
+        $rsm->addScalarResult('uri', 'URL');
+        $rsm->addScalarResult('terminal_type', 'Terminal');
+        $rsm->addScalarResult('ville', 'Zone');
+        $rsm->addScalarResult('user_id', 'Utilisateur');
         $rsm->addScalarResult('error_code', 'errorCode');
-        $rsm->addScalarResult('header', 'header');
-        $rsm->addScalarResult('post_params', 'postParams');
-        $rsm->addScalarResult('get_params', 'getParams');
+        $rsm->addScalarResult('header', 'Header');
+        $rsm->addScalarResult('post_params', 'Post');
+        $rsm->addScalarResult('get_params', 'Get');
         $query = $this->em->createNativeQuery($sql, $rsm)
             ->setParameters(
                 [
@@ -538,11 +579,86 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                     'end'    =>  $end,
                     'ws'  =>  'Ws\\\%',
                     'api' =>  '%/api/%',
+                    'lf'  =>  (int)$limit,
+                    'off'  =>  (int)$offset
                 ]
             )
         ;
 
         return $query->getResult();
+    }
+    public function getCountWsActions($start, $end, $search = null, $dir = null, $iCol = null)
+    {
+        $sql = "SELECT count(*) as 'count'
+                FROM `".$this->table_name."` l
+                WHERE l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`action` LIKE :ws
+                AND l.`uri` LIKE :api
+                AND l.`user_id` != 0
+                AND l.`date` >= :start
+                AND l.`date` <= :end"
+        ;
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+        }
+
+
+
+        if ($dir == null)
+            $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+            break;
+            case 3:
+                $sql .= " ORDER BY l.`uri` $dir";
+            break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+            break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+            break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+            break;
+            case 7:
+                $sql .= " ORDER BY l.`terminal_type` $dir";
+            break;
+            case 8:
+                $sql .= " ORDER BY l.`ville` $dir";
+            break;
+        }
+
+//        $sql .=" LIMIT :lf OFFSET :off";
+
+        //        AND DATE_FORMAT(l.`date`, "%d") >= :days
+        //        AND DATE_FORMAT(l.`date`, "%m") = :mois
+        //        AND DATE_FORMAT(l.`date`, "%Y") = :annee
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('count', 'count');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+                          ->setParameters(
+                              [
+                                  'start'    =>  $start,
+                                  'end'    =>  $end,
+                                  'ws'  =>  'Ws\\\%',
+                                  'api' =>  '%/api/%',
+                                  //'lf'  =>  (int)$limit,
+                                  //'off'  =>  (int)$offset
+                              ]
+                          )
+        ;
+        return $query->getSingleScalarResult();
     }
 
     public function getErrors($start, $end)

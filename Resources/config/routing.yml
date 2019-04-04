@@ -60,3 +60,7 @@ dashboard_ajaxuseractions:
 dashboard_get_bo_actions_ajax:
   path:     /boActionsAjax
   defaults: { _controller: OrcaUserLogBundle:Dashboard:getBoActionsAjax }
+
+dashboard_get_ws_actions_ajax:
+  path:     /wsActionsAjax
+  defaults: { _controller: OrcaUserLogBundle:Dashboard:getWSActionsAjax }

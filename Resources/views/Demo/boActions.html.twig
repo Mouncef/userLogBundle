@@ -69,174 +69,7 @@
                                     <th>Zone</th>
                                 </tr>
                                 </thead>
-                                {#<tbody>#}
-                                {#{% for action in actions %}#}
-                                {#<tr>#}
-                                    {#<td width="120px">#}
-                                        {#<span class="hide">{{ action.date|date('YmdHis') }}</span>#}
-                                        {#{{ action.date|date('d-m-Y H:i') }}#}
-                                    {#</td>#}
-                                    {#<td style="text-align: center">{{ action.user }}</td>#}
-                                    {#<td>#}
-                                        {#<a href="http://{{ host }}/app_dev.php{{ action.uri }}" target="_blank">#}
-                                            {#{% if action.uri|length > 100 %}#}
-                                                {#{{ action.uri[:100] }} ...#}
-                                            {#{% else %}#}
-                                                {#{{ action.uri }}#}
-                                            {#{% endif %}#}
-                                        {#</a>#}
-                                    {#</td>#}
-
-                                    {#{% set headerValues = action.header|decode %}#}
-                                    {#{% set postValues = action.postParams|decode %}#}
-                                    {#{% set getValues = action.getParams|decode %}#}
-                                    {#<td>#}
-                                        {#{% if headerValues is not empty %}#}
-                                            {#<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ action.id }}">Params</a>#}
-                                            {#<!-- Modal -->#}
-                                            {#<div class="modal fade" id="modalHeader-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >#}
-                                                {#<div class="modal-dialog modal-lg" role="document" style="width: 70%">#}
-                                                    {#<div class="modal-content">#}
-                                                        {#<div class="modal-header">#}
-                                                            {#<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-                                                            {#<h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>#}
-                                                        {#</div>#}
-                                                        {#<div class="modal-body">#}
-                                                            {#<div id="accordionHeader-{{ action.id }}">#}
-                                                                {#{% for key, value in headerValues %}#}
-                                                                    {#{% for v in value %}#}
-                                                                        {#<h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>#}
-                                                                        {#<div>#}
-                                                                            {#<p>#}
-                                                                                {#{% if v is iterable %}#}
-                                                                                    {#{% for a in v %}#}
-                                                                                        {#{% if a is iterable %}#}
-                                                                                            {#{% for b in a %}#}
-                                                                                                {#{% if b is iterable %}#}
-                                                                                                    {#{% for c in b %}#}
-                                                                                                        {#{% if c is iterable %}#}
-                                                                                                            {#{% for d in c %}#}
-                                                                                                                {#{% if d is iterable %}#}
-                                                                                                                    {#Array#}
-                                                                                                                {#{% else %}#}
-                                                                                                                    {#{{ d }}#}
-                                                                                                                {#{% endif %}#}
-                                                                                                            {#{% endfor %}#}
-                                                                                                        {#{% else %}#}
-                                                                                                            {#{{ c }}#}
-                                                                                                        {#{% endif %}#}
-                                                                                                    {#{% endfor %}#}
-                                                                                                {#{% else %}#}
-                                                                                                    {#{{ b }}#}
-                                                                                                {#{% endif %}#}
-                                                                                            {#{% endfor %}#}
-                                                                                        {#{% else %}#}
-                                                                                            {#{{ a }}#}
-                                                                                        {#{% endif %}#}
-                                                                                    {#{% endfor %}#}
-                                                                                {#{% else %}#}
-                                                                                    {#{{ v }}#}
-                                                                                {#{% endif %}#}
-                                                                            {#</p>#}
-                                                                        {#</div>#}
-                                                                    {#{% endfor %}#}
-                                                                {#{% endfor %}#}
-                                                            {#</div>#}
-                                                        {#</div>#}
-                                                    {#</div>#}
-                                                {#</div>#}
-                                            {#</div>#}
-                                        {#{% else %}#}
-                                            {#Vide#}
-                                        {#{% endif %}#}
-                                    {#</td>#}
-                                    {#<td>#}
-                                        {#{% if postValues is not empty %}#}
-                                            {#<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-{{ action.id }}">Params</a>#}
-                                            {#<!-- Modal -->#}
-                                            {#<div class="modal fade" id="modalPost-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >#}
-                                                {#<div class="modal-dialog modal-lg" role="document" style="width: 70%">#}
-                                                    {#<div class="modal-content">#}
-                                                        {#<div class="modal-header">#}
-                                                            {#<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-                                                            {#<h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>#}
-                                                        {#</div>#}
-                                                        {#<div class="modal-body">#}
-                                                            {#<div id="accordionPost-{{ action.id }}">#}
-                                                                {#{% for key, value in postValues %}#}
-                                                                    {#<h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>#}
-                                                                    {#<div>#}
-                                                                        {#<p>#}
-                                                                            {#{% if value is iterable %}#}
-                                                                                {#{{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}#}
-                                                                            {#{% else %}#}
-                                                                                {#{{ value }}#}
-                                                                            {#{% endif %}#}
-                                                                        {#</p>#}
-                                                                    {#</div>#}
-                                                                {#{% endfor %}#}
-                                                            {#</div>#}
-                                                        {#</div>#}
-                                                    {#</div>#}
-                                                {#</div>#}
-                                            {#</div>#}
-                                        {#{% else %}#}
-                                            {#Vide#}
-                                        {#{% endif %}#}
-                                    {#</td>#}
-                                    {#<td>#}
-                                        {#{% if getValues is not empty %}#}
-                                        {#<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ action.id }}">Params</a>#}
-                                        {#<!-- Modal -->#}
-                                        {#<div class="modal fade" id="modalGet-{{ action.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >#}
-                                            {#<div class="modal-dialog modal-lg" role="document" style="width: 70%">#}
-                                                {#<div class="modal-content">#}
-                                                    {#<div class="modal-header">#}
-                                                        {#<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
-                                                        {#<h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>#}
-                                                    {#</div>#}
-                                                    {#<div class="modal-body">#}
-                                                        {#<div id="accordionGet-{{ action.id }}">#}
-                                                            {#{% for key, value in getValues %}#}
-                                                            {#<h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>#}
-                                                            {#<div>#}
-                                                                {#<p>#}
-                                                                    {#{% if value is iterable %}#}
-                                                                    {#<div id="xGet-{{ action.id }}">#}
-                                                                        {#{% for k, v in value %}#}
-                                                                        {#<h3 style="color: #000000;text-align: left; font-size: 18px">{{ k }}</h3>#}
-                                                                        {#<div>#}
-                                                                {#<p>#}
-                                                                    {#{% if v is iterable %}#}
-                                                                        {#(Array) {{ v|json_encode() }}#}
-                                                                    {#{% else %}#}
-                                                                        {#{{ v }}#}
-                                                                    {#{% endif %}#}
-                                                                {#</p>#}
-                                                            {#</div>#}
-                                                            {#{% endfor %}#}
-                                                        {#</div>#}
-                                                        {#{% else %}#}
-                                                            {#{{ value }}#}
-                                                        {#{% endif %}#}
-                                                        {#</p>#}
-                                                    {#</div>#}
-                                                    {#{% endfor %}#}
-                                                {#</div>#}
-                                            {#</div>#}
-                                        {#</div>#}
-                        {#</div>#}
-                    {#</div>#}
-                    {#{% else %}#}
-                        {#Vide#}
-                    {#{% endif %}#}
-                    {#</td>#}
-                    {#<td>{{ action.terminalType }}</td>#}
-                    {#<td>{{ action.ville }}</td>#}
-                    {#</tr>#}
-                    {#{% endfor %}#}
-                    {#</tbody>#}
-                    </table>
+                            </table>
 
                 </div>
                     </div>
@@ -281,6 +114,8 @@
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script>
+            var startTimeLine = moment().startOf('month');
+            var endTimeLine = moment().endOf('month').add(1,'days');
             function toStringHeader(data) {
                 var result = Object.keys(data).map(function(key,value) {
                     var child = "";
@@ -366,9 +201,9 @@
                                 data = JSON.parse(data);
                                 var result = toStringHeader(data);
                                 da=
-                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-">Params</a>'+
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-4-'+row['id']+'">Params</a>'+
                                     <!-- Modal -->
-                                    '<div class="modal fade" id="modalHeader-" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal fade" id="modalHeader-4-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
                                     '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
                                     '<div class="modal-content">'+
                                     '<div class="modal-header">'+
@@ -403,9 +238,9 @@
                                 data = JSON.parse(data);
                                 var result = toStringPost(data);
                                 dat=
-                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-">Params</a>'+
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-5-'+row['id']+'">Params</a>'+
                                     <!-- Modal -->
-                                    '<div class="modal fade" id="modalPost-" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal fade" id="modalPost-5-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
                                     '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
                                     '<div class="modal-content">'+
                                     '<div class="modal-header">'+
@@ -439,9 +274,9 @@
                                 data = JSON.parse(data);
                                 var result = toStringPost(data);
                                 dat=
-                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-">Params</a>'+
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-6-'+row['id']+'">Params</a>'+
                                     <!-- Modal -->
-                                    '<div class="modal fade" id="modalPost-" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal fade" id="modalPost-6-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
                                     '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
                                     '<div class="modal-content">'+
                                     '<div class="modal-header">'+
@@ -549,8 +384,9 @@
 
         $('#user').change(function (key)
         {
+            console.log(startTimeLine,endTimeLine);
             var id = $('#user').val();
-            var data = 'id=' + id;
+            var data = 'id=' + id + '&start=' + startTimeLine.format('YYYY-MM-DD') + '&end=' + endTimeLine.format('YYYY-MM-DD');
             $.ajax({
                 type: "POST",
                 data: data,
@@ -648,6 +484,9 @@
                 {
                     var id = $('#user').val();
 
+
+                    startTimeLine = start;
+                    endTimeLine = end;
                     var start = start.format('YYYY-MM-DD');
                     var end = end.format('YYYY-MM-DD');
                     var data = 'id=' + id + '&start=' + start + '&end=' + end;

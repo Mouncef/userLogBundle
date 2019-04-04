@@ -44,6 +44,7 @@
                 <table id="example" class="display" cellspacing="0" width="100%" style="padding: 5px;">
                     <thead>
                     <tr>
+                        <th>id</th>
                         <th>Date</th>
                         <th>Utilisateur</th>
                         <th>URL</th>
@@ -54,146 +55,7 @@
                         <th>Zone</th>
                     </tr>
                     </thead>
-                    <tfoot>
-                    <tr>
-                        <th>Date</th>
-                        <th>Utilisateur</th>
-                        <th>URL</th>
-                        <th>Header</th>
-                        <th>Post</th>
-                        <th>Get</th>
-                        <th>Terminal</th>
-                        <th>Zone</th>
-                    </tr>
-                    </tfoot>
-                    <tbody>
-                    {% for error in errors %}
-                        <tr>
-                            <td width="120px">
-                                <span class="hide">{{ error.date|date('YmdHis') }}</span>
-                                {{ error.date|date('d-m-Y H:i') }}
-                            </td>
-                            <td style="text-align: center">{{ error.user }}</td>
-                            <td>
-                                <a href="http://{{ host }}/app_dev.php{{ error.uri }}" target="_blank">
-                                    {% if error.uri|length > 100 %}
-                                        {{ error.uri[:100] }} ...
-                                    {% else %}
-                                        {{ error.uri }}
-                                    {% endif %}
-                                </a>
-                            </td>
-
-                            {% set headerValues = error.header|decode %}
-                            {% set postValues = error.postParams|decode %}
-                            {% set getValues = error.getParams|decode %}
-                            <td>
-                                {% if headerValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalHeader-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionHeader-{{ error.id }}">
-                                                        {% for key, value in headerValues %}
-                                                            {% for v in value %}
-                                                                <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                                <div>
-                                                                    <p>
-                                                                        {{ v }}
-                                                                    </p>
-                                                                </div>
-                                                            {% endfor %}
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if postValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalPost-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionPost-{{ error.id }}">
-                                                        {% for key, value in postValues %}
-                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                            <div>
-                                                                <p>
-                                                                    {% if value is iterable %}
-                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
-                                                                    {% else %}
-                                                                        {{ value }}
-                                                                    {% endif %}
-                                                                </p>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if getValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalGet-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionGet-{{ error.id }}">
-                                                        {% for key, value in getValues %}
-                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                            <div>
-                                                                <p>
-                                                                    {% if value is iterable %}
-                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
-                                                                    {% else %}
-                                                                        {{ value }}
-                                                                    {% endif %}
-                                                                </p>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>{{ error.terminalType }}</td>
-                            <td>{{ error.ville }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
                 </table>
-
             </div>
         </div>
     </div>
@@ -204,14 +66,202 @@
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script>
+        var endTimeLine = moment().endOf('month').add(1,'days');
+        function toStringHeader(data) {
+            var result = Object.keys(data).map(function(key,value) {
+                var child = "";
+                /*if(typeof data[key] === "object"){
+                 child = toString(data[key]);
+                 }else{*/
+                child = data[key];
+                //}
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key +' </h3>'+
+                    '<div>'+
+                    '<p>' + child + '</p>'+
+                    '</div>'
+                    ;
+            });
+            return result
+        }
+
+        function toStringPost(data) {
+            var result = Object.keys(data).map(function(key,value) {
+                var child = "";
+                if(typeof data[key] === "object"){
+                    child = JSON.stringify(data[key]);
+                }else{
+                    child = data[key];
+                }
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key +' </h3>'+
+                    '<div>'+
+                    '<p>' + child + '</p>'+
+                    '</div>'
+                    ;
+            });
+            return result
+        }
+        var start = moment("{{ date_start }}");
+        var end = moment("{{ date_end }}");
         var table = $('#example').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "url" : '{{ path('dashboard_get_ws_actions_ajax') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD'),
+                "type" : 'POST'
+            },
+            "columns": [
+                {"data": "id"},
+                {"data": "Date"},
+                {"data": "Utilisateur"},
+                {"data": "URL"},
+                {"data": "Header"},
+                {"data": "Post"},
+                {"data": "Get"},
+                {"data": "Terminal"},
+                {"data": "Zone"},
+                {"data": "Host"},
+            ],
+            columnDefs: [
+                {
+                    targets:0,
+                    visible: false,
+                    searchable: false,
+                },
+                {
+                    targets:9,
+                    visible: false,
+                    searchable: false,
+                },
+                {
+                    targets:3,
+                    render: function ( data, type, row) {
+                        if(type === 'display'){
+                            data = '<a href="http://'+ row['Host'] +'/app_dev.php'+ row['URL'] +'">' + data.substr(0, 40) + '</a>';
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets:4,
+                    render: function ( data, type, row) {
+                        if(type === 'display'){
+                            if (data !== "[]" && data!==null) {
+                                $dataarr = "";
+                                data = JSON.parse(data);
+                                var result = toStringHeader(data);
+                                da=
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-4-'+row['id']+'">Params</a>'+
+                                    <!-- Modal -->
+                                    '<div class="modal fade" id="modalHeader-4-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
+                                    '<div class="modal-content">'+
+                                    '<div class="modal-header">'+
+                                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+                                    '<h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>'+
+                                    '</div>'+
+                                    '<div class="modal-body">'+
+                                    '<div id="accordionHeader-'+ row['id'] +'">' +
+                                    /*for(var i = 0; i < data.length; i++){
+                                     var obj
+                                     }*/
+                                    result.join("") +
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>';
+                            }else {
+                                da = '<p> vide </p>';
+                            }
+
+                        }
+                        return da;
+                    }
+                },
+
+                {
+                    targets:5,
+                    render: function ( data, type, row) {
+                        if(type === 'display'){
+                            if (data !== "[]" && data!==null) {
+                                data = JSON.parse(data);
+                                var result = toStringPost(data);
+                                dat=
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-5-'+row['id']+'">Params</a>'+
+                                    <!-- Modal -->
+                                    '<div class="modal fade" id="modalPost-5-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
+                                    '<div class="modal-content">'+
+                                    '<div class="modal-header">'+
+                                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+                                    '<h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>'+
+                                    '</div>'+
+                                    '<div class="modal-body">'+
+                                    '<div id="accordionPost-'+ row['id'] + '">' +
+                                    /*for(var i = 0; i < data.length; i++){
+                                     var obj
+                                     }*/
+                                    result.join("") +
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>';
+                            }else {
+                                dat = "vide";
+                            }
+
+                        }
+                        return dat;
+                    }
+                },
+                {
+                    targets:6,
+                    render: function ( data, type, row) {
+                        if(type === 'display'){
+                            if (data !== "[]" && data!==null) {
+                                data = JSON.parse(data);
+                                var result = toStringPost(data);
+                                dat=
+                                    '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-6-'+row['id']+'">Params</a>'+
+                                    <!-- Modal -->
+                                    '<div class="modal fade" id="modalPost-6-'+row['id']+'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >'+
+                                    '<div class="modal-dialog modal-lg" role="document" style="width: 70%">'+
+                                    '<div class="modal-content">'+
+                                    '<div class="modal-header">'+
+                                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+                                    '<h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>'+
+                                    '</div>'+
+                                    '<div class="modal-body">'+
+                                    '<div id="accordionPost-'+ row['id'] + '">' +
+                                    /*for(var i = 0; i < data.length; i++){
+                                     var obj
+                                     }*/
+                                    result.join("") +
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '</div>';
+                            }else {
+                                dat = "vide";
+                            }
+
+                        }
+                        return dat;
+                    }
+                },
+            ],
             "paging": true,
             "lengthChange": true,
             "searching": true,
             "ordering": true,
             "info": true,
+            "pageLength": 15,
             "autoWidth": true,
-            "order": [0,'desc'],
+            "order": [1,'ASC'],
 //            "ColumnDefs": [
 //                { "orderData": 0, "targets": [0] }
 //            ],
@@ -236,21 +286,27 @@
             },
             "fnDrawCallback":function () {
                 $( function() {
-                    {% for error in errors %}
-                    $( "#accordionHeader-{{ error.id }}" ).accordion({
-                        heightStyle: "content",
+                    console.log('TDG');
+                    $("[id^='accordionHeader'],[id^='accordionPost'],[id^='accordionGet'][id^='xGet']" ).accordion({
+                        heightStyle: "content"
                     });
-                    $( "#accordionPost-{{ error.id }}" ).accordion({
-                        heightStyle: "content",
-                    });
-                    $( "#accordionGet-{{ error.id }}" ).accordion({
-                        heightStyle: "content",
-                    });
-                    {% endfor %}
+                    {#{% for action in actions %}#}
+                    {#$( "#accordionHeader-{{ action.id }}" ).accordion({#}
+                    {#heightStyle: "content"#}
+                    {#});#}
+                    {#$( "#accordionPost-{{ action.id }}" ).accordion({#}
+                    {#heightStyle: "content"#}
+                    {#});#}
+                    {#$( "#accordionGet-{{ action.id }}" ).accordion({#}
+                    {#heightStyle: "content"#}
+                    {#});#}
+                    {#$( "#xGet-{{ action.id }}" ).accordion({#}
+                    {#heightStyle: "content",#}
+                    {#});#}
+                    {#{% endfor %}#}
                 });
             }
         });
-
         $(document).ready(function() {
             $('#example tfoot th').each(function () {
                 var title = $(this).text();
@@ -274,8 +330,8 @@
 
         $(function() {
 
-            var start = moment().startOf('month');
-            var end = moment().endOf('month');
+            var start = moment("{{ date_start }}");
+            var end = moment("{{ date_end }}");
             var isFirstTime = true;
 
             function cb(start, end) {
@@ -285,7 +341,8 @@
                 }
                     else
                 {
-                    window.location.href = '{{ path('dashboard_ws_actions') }}?start=' + start.format('YYYY-MM-DD') + '&end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
+                    window.location.href = '{{ path('dashboard_ws_actions') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
+
                 }
             }
 
