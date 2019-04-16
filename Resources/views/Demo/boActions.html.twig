@@ -310,7 +310,7 @@
             "info": true,
             "pageLength": 15,
             "autoWidth": true,
-            "order": [1,'ASC'],
+            "order": [1,'DESC'],
 //            "ColumnDefs": [
 //                { "orderData": 0, "targets": [0] }
 //            ],
@@ -387,6 +387,8 @@
             console.log(startTimeLine,endTimeLine);
             var id = $('#user').val();
             var data = 'id=' + id + '&start=' + startTimeLine.format('YYYY-MM-DD') + '&end=' + endTimeLine.format('YYYY-MM-DD');
+
+            $("#timeline").html("<h2 style='text-align: center;'>Encours de chargement...</h2>");
             $.ajax({
                 type: "POST",
                 data: data,

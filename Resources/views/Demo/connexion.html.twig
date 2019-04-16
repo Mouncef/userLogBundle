@@ -37,27 +37,6 @@
                         <th>Terminals</th>
                     </tr>
                     </thead>
-                    <tfoot>
-                    <tr>
-                        <th>Utilisateur</th>
-                        <th>Nbr connexion</th>
-                        <th>Nbr Alert</th>
-                        <th>Dernière Cnx</th>
-                        <th>Terminals</th>
-                    </tr>
-                    </tfoot>
-                    <tbody>
-                    {% for connexion in connexions %}
-                        <tr>
-                            <td>{{ connexion.user }}</td>
-                            <td>{{ connexion.nb_con }}</td>
-                            <td>{{ connexion.nb_err }}</td>
-                            <td>{{ connexion.last_conn }}</td>
-                            <td>{{ connexion.ters }}</td>
-                        </tr>
-
-                    {% endfor %}
-                    </tbody>
                 </table>
 
             </div>
@@ -68,61 +47,106 @@
 {% block javascript %}
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/map.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
-    <script src="https://code.highcharts.com/mapdata/custom/world.js"></script>
-
     <script>
-        var table = $('#example').DataTable({
-                "paging": true,
-                "lengthChange": true,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": true,
-                "order": [1,'desc'],
-                "bfilter":true,
-                "language": {
-                    "sProcessing": "Traitement en cours...",
-                    "sSearch": "Rechercher&nbsp;:",
-                    "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
-                    "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
-                    "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
-                    "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
-                    "sInfoPostFix": "",
-                    "sLoadingRecords": "Chargement en cours...",
-                    "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
-                    "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
-                    "oPaginate": {
-                        "sFirst": "Premier",
-                        "sPrevious": "Pr&eacute;c&eacute;dent",
-                        "sNext": "Suivant",
-                        "sLast": "Dernier"
-                    }
-                }
+        var startTimeLine = moment().startOf('month');
+        var endTimeLine = moment().endOf('month').add(1,'days');
+        function toStringHeader(data) {
+            var result = Object.keys(data).map(function(key,value) {
+                var child = "";
+                /*if(typeof data[key] === "object"){
+                 child = toString(data[key]);
+                 }else{*/
+                child = data[key];
+                //}
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key +' </h3>'+
+                    '<div>'+
+                    '<p>' + child + '</p>'+
+                    '</div>'
+                    ;
             });
-            $(document).ready(function() {
-                $('#example tfoot th').each( function () {
-                    var title = $(this).text();
-                    $(this).html( '<input type="text" placeholder="'+title+'" />' );
-                } );
-                // Apply the search
-                table.columns().every( function () {
-                    var that = this;
+            return result
+        }
 
-                    $( 'input', this.footer() ).on( 'keyup change', function () {
-                        if ( that.search() !== this.value ) {
-                            that
-                                .search( this.value )
-                                .draw();
-                        }
-                    } );
-                } )});
+        function toStringPost(data) {
+            var result = Object.keys(data).map(function(key,value) {
+                var child = "";
+                if(typeof data[key] === "object"){
+                    child = JSON.stringify(data[key]);
+                }else{
+                    child = data[key];
+                }
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key +' </h3>'+
+                    '<div>'+
+                    '<p>' + child + '</p>'+
+                    '</div>'
+                    ;
+            });
+            return result
+        }
+        var start = moment("{{ date_start }}");
+        var end = moment("{{ date_end }}");
+        var table = $('#example').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "url" : '{{ path('dashboard_connexion_ajax') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD'),
+                "type" : 'POST'
+            },
+            "columns": [
+                {"data": "user"},
+                {"data": "nb_con"},
+                {"data": "nb_err"},
+                {"data": "last_conn"},
+                {"data": "ters"}
+            ],
+            columnDefs: [
+                {
+                    targets:1,
+                    visible: true,
+                    searchable: false
+                },
+                {
+                    targets:2,
+                    visible: true,
+                    searchable: false
+                }
+            ],
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "pageLength": 15,
+            "autoWidth": true,
+            //"order": [1,'DESC'],
+            "bfilter":true,
+            "language": {
+                "sProcessing": "Traitement en cours...",
+                "sSearch": "Rechercher&nbsp;:",
+                "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
+                "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+                "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+                "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+                "sInfoPostFix": "",
+                "sLoadingRecords": "Chargement en cours...",
+                "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
+                "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+                "oPaginate": {
+                    "sFirst": "Premier",
+                    "sPrevious": "Pr&eacute;c&eacute;dent",
+                    "sNext": "Suivant",
+                    "sLast": "Dernier"
+                }
+            }
+        });
 
-            $(function() {
 
-            var start = moment().startOf('month');
-            var end = moment().endOf('month');
+        $(function() {
+
+            var start = moment("{{ date_start }}");
+            var end = moment("{{ date_end }}");
             var isFirstTime = true;
 
             function cb(start, end) {
@@ -130,9 +154,9 @@
                 if(isFirstTime){
                     isFirstTime = false;
                 }
-                    else
+                else
                 {
-                    window.location.href = '{{ path('dashboard_connexion') }}?start=' + start.format('YYYY-MM-DD') + '&end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
+                    window.location.href = '{{ path('dashboard_connexion') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
                 }
             }
 

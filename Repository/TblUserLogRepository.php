@@ -201,7 +201,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getResult();
     }
 
-    public function getConnexions($start, $end)
+    public function getConnexions($start, $end, $search, $dir, $iCol,$offset,$limit)
     {
         $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals,
                 (
@@ -213,9 +213,34 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 FROM `".$this->table_name."` l 
                 WHERE l.`action` = 'Login_BO'
                 AND l.`date` >= :start
-                AND l.`date` <= :end
-                GROUP BY l.`user_id`
-                ORDER BY nb_connexion DESC";
+                AND l.`date` <= :dateend";
+
+
+
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search OR l.`terminal LIKE :search)";
+        }
+        $sql .=" GROUP BY l.`user_id`";
+
+        if ($dir == null)
+        $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+            break;
+            default:
+                $sql .= " ORDER BY nb_connexion $dir";
+            break;
+        }
+
+        $sql .=" LIMIT :lf OFFSET :off";
+
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('user_id', 'user');
@@ -224,41 +249,90 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('last_conn', 'last_conn');
         $rsm->addScalarResult('terminals', 'ters');
         $query = $this->em->createNativeQuery($sql, $rsm)
-            ->setParameter('start', $start)
-            ->setParameter('end', $end);
+                          ->setParameters([
+                              'start'    =>  $start,
+                              'dateend'    =>  $end,
+                              'search' => "%".$search['value']."%",
+                              'lf'  =>  (int)$limit,
+                              'off'  =>  (int)$offset
+                          ])
+        ;
 
         return $query->getResult();
     }
-
-    public function getWsConnexions($start, $end)
+    public function getCountConnexions($start, $end, $search)
     {
-        /*$sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`,
-                (
-                SELECT COUNT(lo.`error_code`)
-                FROM `tbl_user_log` lo
-                WHERE lo.`error_code` NOT IN (200,302)
-                AND lo.`post_params`=l.`post_params`
-                ) AS nb_erreur
-                FROM `tbl_user_log` l 
-                WHERE l.`action` LIKE '%Ws%'
-                AND DATE_FORMAT(l.`date`, \"%m\") = :mois
-                AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
-                GROUP BY l.`post_params`
-                ORDER BY nb_connexion DESC";*/
+        $sql = "SELECT count(*) as 'count'
+                FROM `".$this->table_name."` l 
+                WHERE l.`action` = 'Login_BO'
+                AND l.`date` >= :start
+                AND l.`date` <= :dateend";
 
-        $sql = "SELECT l.`id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+        }
+
+        $sql .=" GROUP BY l.`user_id`";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('count', 'count');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+                          ->setParameters([
+                              'start'    =>  $start,
+                              'dateend'    =>  $end,
+                              'search' => "%".$search['value']."%",
+                          ])
+        ;
+        return count($query->getArrayResult());
+    }
+
+    public function getWsConnexions($start, $end, $search, $dir, $iCol,$offset,$limit)
+    {
+
+
+        $sql = "SELECT l.`user_id`, COUNT(*) AS nb_connexion,MAX(l.date) AS last_conn, GROUP_CONCAT( DISTINCT l.`terminal`) AS terminals, l.`header`, l.`post_params`, l.`get_params`
                 FROM `".$this->table_name."` l 
                 WHERE l.`action` LIKE '%Ws%'
                 AND l.`date` = :start
-                AND l.`date` = :end
+                AND l.`date` = :dateend
                 AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
                 AND l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
-                AND l.`header` IS NOT NULL
-                GROUP BY REPLACE(CONCAT(post_params,get_params),'[]','')
-                ORDER BY nb_connexion DESC";
+                AND l.`header` IS NOT NULL";
+
+
+
+
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search OR l.`terminal LIKE :search)";
+        }
+
+        $sql .=" GROUP BY REPLACE(CONCAT(post_params,get_params),'[]','')";
+        if ($dir == null)
+        $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+            break;
+            default:
+                $sql .= " ORDER BY nb_connexion $dir";
+            break;
+        }
+
+        $sql .=" LIMIT :lf OFFSET :off";
+
 
         $rsm = new ResultSetMapping();
-        $rsm->addScalarResult('id', 'id');
+        $rsm->addScalarResult('user_id', 'id');
         $rsm->addScalarResult('nb_connexion', 'nb_con');
         $rsm->addScalarResult('last_conn', 'last_conn');
         $rsm->addScalarResult('terminals', 'ters');
@@ -266,10 +340,48 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('post_params', 'postParams');
         $rsm->addScalarResult('get_params', 'getParams');
         $query = $this->em->createNativeQuery($sql, $rsm)
-            ->setParameters(['start'=>$start, 'end'=>$end]);
-
+                          ->setParameters([
+                              'start'    =>  $start,
+                              'dateend'    =>  $end,
+                              'search' => "%".$search['value']."%",
+                              'lf'  =>  (int)$limit,
+                              'off'  =>  (int)$offset
+                          ])
+        ;
 
         return $query->getResult();
+    }
+    public function getCountWsConnexions($start, $end, $search)
+    {
+
+
+        $sql = "SELECT count(*) as 'count' 
+                FROM `".$this->table_name."` l 
+                WHERE l.`action` LIKE '%Ws%'
+                AND l.`date` = :start
+                AND l.`date` = :dateend
+                AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
+                AND l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`header` IS NOT NULL";
+
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search OR l.`terminal LIKE :search)";
+        }
+
+        $sql .=" GROUP BY REPLACE(CONCAT(post_params,get_params),'[]','')";
+
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('count', 'count');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+                          ->setParameters([
+                              'start'    =>  $start,
+                              'dateend'    =>  $end,
+                              'search' => "%".$search['value']."%",
+                          ])
+        ;
+        return count($query->getArrayResult());
     }
 
     public function getBoActions($start, $end, $search = null, $dir = null, $iCol = null, $offset=0, $limit=10)
@@ -327,9 +439,14 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             case 8:
                 $sql .= " ORDER BY l.`ville` $dir";
             break;
+            default:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+
         }
 
         $sql .=" LIMIT :lf OFFSET :off";
+        //die($sql);
         //
         //        -- AND DATE_FORMAT(l.`date`, "%d") >= :days
         //    -- AND DATE_FORMAT(l.`date`, "%m") = :mois
@@ -552,6 +669,10 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
             case 8:
                 $sql .= " ORDER BY l.`ville` $dir";
             break;
+            default:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+
         }
 
         $sql .=" LIMIT :lf OFFSET :off";

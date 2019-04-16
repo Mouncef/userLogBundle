@@ -142,39 +142,134 @@ class DashboardController extends Controller
     public function connexionAction(Request $request)
     {
         $date = new \DateTime('now');
-
-        $month = date_format($date, 'm');
         $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
         $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
-        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
-        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
-
-
-        $em = $this->getDoctrine()->getManager();
-        $connexions = $this->get(self::REPO_AS_SERVICE)->getConnexions($start, $end);
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->userlog_nbdays.' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
 
         return $this->render('@OrcaUserLog/Demo/connexion.html.twig', [
-            'connexions' => $connexions
+            'date_start' => $start,
+            'date_end' => $end
         ]);
     }
+    public function connexionAjaxAction(Request $request)
+    {
+        $draw = $request->get('draw');
+        $offset = trim($request->get('start'));
+        $limit = trim($request->get('length'));
+        $search = $request->get('search');
 
+        $order = $request->get('order');
+        $dir = $order[0]['dir'];
+        $iCol = $order[0]['column'];
+
+        $date = new \DateTime('now');
+        $startDate = new \DateTime($date->format('Y-m-01'));
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->userlog_nbdays.' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
+
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository($this->user_class)->findAll();
+
+        $result=[];
+        $actions = $this->get(self::REPO_AS_SERVICE)->getConnexions($start, $end, $search, $dir, $iCol,$offset,$limit);
+        $countActions = $this->get(self::REPO_AS_SERVICE)->getCountConnexions($start, $end, $search);
+        $result = [
+            'draw'  =>  $draw,
+            'recordsFiltered'   =>  $countActions,
+            'recordsTotal'   =>  $countActions,
+        ];
+
+        if (count($actions) > 0){
+            foreach ($actions as $i=> $action){
+                $user = $em->find($this->user_class,$action['user']);
+                $action['user'] = $user ? $user->__toString() : 'Anony.';
+                $result['data'][] = $action;
+            }
+        }else{
+            $result['data'] = [];
+        }
+        return new JsonResponse($result);
+    }
     public function wsConnexionAction(Request $request)
     {
         $date = new \DateTime('now');
         $startDate = new \DateTime(date_format($date, 'Y').'-'.date_format($date, 'm').'-01');
         $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
-        $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
-        $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->userlog_nbdays.' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+
+        return $this->render('@OrcaUserLog/Demo/wsConnexion.html.twig', [
+            'date_start' => $start,
+            'date_end' => $end
+        ]);
+    }
+    public function wsConnexionAjaxAction(Request $request)
+    {
+        $draw = $request->get('draw');
+        $offset = trim($request->get('start'));
+        $limit = trim($request->get('length'));
+        $search = $request->get('search');
+
+        $order = $request->get('order');
+        $dir = $order[0]['dir'];
+        $iCol = $order[0]['column'];
+
+        $date = new \DateTime('now');
+        $startDate = new \DateTime($date->format('Y-m-01'));
+        $startEnd = (new \DateTime($startDate->format('Y-m-t')))->add(new \DateInterval('P1D'));
+        $start = $request->get('date_start',$startDate->format('Y-m-d')).' 00:00:00';
+        $end = $request->get('date_end',$startEnd->format('Y-m-d')).' 23:59:59';
+        $nbday = '-'.$this->userlog_nbdays.' day';
+        if(is_null($nbday)){
+            $nbday = '-4 day';
+        }
+        $mdate = $date->modify($nbday);
+
+        $em = $this->getDoctrine()->getManager();
+        $host = $request->getHttpHost();
 
         $em = $this->getDoctrine()->getManager();
 
-        $wsConnexions = $this->get(self::REPO_AS_SERVICE)->getWsConnexions($start, $end);
+        $result=[];
+        $actions = $this->get(self::REPO_AS_SERVICE)->getWsConnexions($start, $end, $search, $dir, $iCol,$offset,$limit);
+        $countActions = $this->get(self::REPO_AS_SERVICE)->getCountWsConnexions($start, $end, $search);
+        $result = [
+            'draw'  =>  $draw,
+            'recordsFiltered'   =>  $countActions,
+            'recordsTotal'   =>  $countActions,
+        ];
 
-        return $this->render('@OrcaUserLog/Demo/wsConnexion.html.twig', [
-            'connexions' => $wsConnexions
-        ]);
+        if (count($actions) > 0){
+            foreach ($actions as $i=> $action){
+                $user = $em->find($this->user_class,$action['id']);
+                $action['id'] = $user ? $user->__toString() : 'Anony.';
+                $result['data'][] = $action;
+            }
+        }else{
+            $result['data'] = [];
+        }
+        return new JsonResponse($result);
     }
-
     public function boAction(Request $request) {
 
         $date = new \DateTime('now');
@@ -188,7 +283,6 @@ class DashboardController extends Controller
         }
         $mdate = $date->modify($nbday);
 
-        $em = $this->getDoctrine()->getManager();
         $host = $request->getHttpHost();
 
         $em = $this->getDoctrine()->getManager();
@@ -320,8 +414,8 @@ class DashboardController extends Controller
             $start = $request->get('start',$startDate->format('Y-m-d')).' 00:00:00';
             $end = $request->get('end',$startEnd->format('Y-m-d')).' 23:59:59';
         }else{
-            $start = $request->get('date_start').' 00:00:00';
-            $end = $request->get('date_end').' 23:59:59';
+            $start = $request->get('start').' 00:00:00';
+            $end = $request->get('end').' 23:59:59';
         }
 
 
@@ -385,8 +479,10 @@ class DashboardController extends Controller
 
         if (count($actions) > 0){
             foreach ($actions as $i=> $action){
-                    $action['Host'] = $host;
-                    $result['data'][] = $action;
+                $action['Host'] = $host;
+                $user = $em->find($this->user_class,$action['Utilisateur']);
+                $action['Utilisateur'] = $user ? $user->__toString() : 'Anony.';
+                $result['data'][] = $action;
                 }
         }else{
             $result['data'] = [];
@@ -436,8 +532,10 @@ class DashboardController extends Controller
 
         if (count($actions) > 0){
             foreach ($actions as $i=> $action){
-                    $action['Host'] = $host;
-                    $result['data'][] = $action;
+                $action['Host'] = $host;
+                $user = $em->find($this->user_class,$action['Utilisateur']);
+                $action['Utilisateur'] = $user ? $user->__toString() : 'Anony.';
+                $result['data'][] = $action;
                 }
         }else{
             $result['data'] = [];
