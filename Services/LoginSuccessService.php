@@ -35,13 +35,13 @@ class LoginSuccessService
         $this->em = $em;
     }
 
-    public function onLoginSuccess(Request $request, $tblUserLog){
+    public function onLoginSuccess(Request $request){
 
         $security = $this->container->get('security.token_storage');
         $ip = $request->getClientIp();
 
-
-        $userLog = new $tblUserLog();
+        $logEnity = $this->container->getParameter('orca_user_log.userlog_entity');
+        $userLog = new $logEnity();
 
         if (is_null($security->getToken()))
         {

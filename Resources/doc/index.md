@@ -249,6 +249,19 @@ firewalls:
             provider: fos_userbundle
 ```
 
+##### Si Vous utilisez multiple méthodologies de connextion [WS, Token, FOS...].
+Vous pouvez toujours appeler le dispatcher pour catcher l'évent login.
+```php
+#Backend\AppBundle\Controller\SecurityController.php
+
+$token = new UsernamePasswordToken($user, '', 'secured_area', $result['userRoles']);
+$this->get('security.token_storage')->setToken($token);
+
+/** this statement for userLogBundle */
+    $orcaUserLogSuccessAuthEvent = new AuthenticationSuccessEvent($user ,$request); // params: Instance of userInteface and Request object.
+    $this->get('event_dispatcher')->dispatch(Events::AUTHENTICATION_SUCCESS, $orcaUserLogSuccessAuthEvent);
+/** end Statement */
+```
 
 ### préparation route principale : userLog_homepage_login
 

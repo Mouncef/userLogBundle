@@ -47,6 +47,12 @@ services:
         class: Orca\UserLogBundle\Repository\TblUserLogRepository
         arguments:  ['@service_container', "@doctrine.orm.entity_manager"]
 
-    Orca\UserLogBundle\Services\LoginSuccessService:
+    orca_user_log.service.login_success:
         class: Orca\UserLogBundle\Services\LoginSuccessService
         arguments:  ['@service_container', "@doctrine.orm.entity_manager"]
+
+    orca_user_log.event.authentication_success_listener:
+        class: Orca\UserLogBundle\EventListener\AuthenticationSuccessListener
+        arguments: [ '@service_container' ]
+        tags:
+            - { name: kernel.event_listener, event: orca_userlog_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }

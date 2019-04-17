@@ -43,7 +43,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
-        //die('login');
+        die('login');
 
         $user = $token->getUser();
         $ip = $request->getClientIp();
@@ -112,7 +112,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
         $em = $this->em;
         $em->persist($userLog);
-        $em->flush();
+        $em->flush($userLog);
 
         $session = new Session();
         $session->set('connected', $user);
