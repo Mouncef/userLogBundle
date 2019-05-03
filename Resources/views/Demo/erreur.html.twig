@@ -2,199 +2,67 @@
 
 {% block content %}
     <style>
-        tbody{
+        tbody {
             color: #000;
         }
+
         tbody tr {
             font-size: 12px;
         }
-        .dataTables_length, .dataTables_filter, .dataTables_info{
+
+        .dataTables_length, .dataTables_filter, .dataTables_info {
             color: #FFF !important;
         }
+
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
             color: #FFF !important;
         }
-        tr.header
-        {
-            cursor:pointer;
+
+        tr.header {
+            cursor: pointer;
         }
-        .header .sign:after{
-            content:"+";
-            display:inline-block;
+
+        .header .sign:after {
+            content: "+";
+            display: inline-block;
         }
-        .header.expand .sign:after{
-            content:"-";
+
+        .header.expand .sign:after {
+            content: "-";
         }
     </style>
 
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
-            <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+            <div id="reportrange" class="pull-right"
+                 style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                 <i class="fas fa-calendar-alt"></i>&nbsp;
                 <span></span> <b class="caret"></b>
             </div>
         </div>
     </div>
-    <br />
+    <br/>
     <div class="row">
         <div class="col-md-12">
             <div class="dash-unit" style="padding: 5px;">
                 <table id="example" class="display" cellspacing="0" width="100%" style="padding: 5px;">
                     <thead>
                     <tr>
+                        <th>Id</th>
                         <th>Date</th>
+                        <th>Utilisateur</th>
                         <th>URL</th>
                         <th>Header</th>
                         <th>Post</th>
                         <th>Get</th>
                         <th>Terminal</th>
                         <th>Zone</th>
-                        <th>Utilisateur</th>
+                        <th>Action</th>
                         <th>Code Alerte</th>
                     </tr>
                     </thead>
-                    <tfoot>
-                    <tr>
-                        <th>Date</th>
-                        <th>URL</th>
-                        <th>Header</th>
-                        <th>Post</th>
-                        <th>Get</th>
-                        <th>Terminal</th>
-                        <th>Zone</th>
-                        <th>Utilisateur</th>
-                        <th>Code Alerte</th>
-                    </tr>
-                    </tfoot>
-                    <tbody>
-                    {% for error in errors %}
-                        <tr>
-                            <td width="120px">
-                                <span class="hide">{{ error.date|date('YmdHis') }}</span>
-                                {{ error.date|date('d-m-Y H:i') }}
-                            </td>
-                            <td>
-                                <a href="http://{{ host }}/app_dev.php{{ error.uri }}" target="_blank">
-                                    {% if error.uri|length > 100 %}
-                                        {{ error.uri[:100] }} ...
-                                    {% else %}
-                                        {{ error.uri }}
-                                    {% endif %}
-                                </a>
-                            </td>
-
-                            {% set headerValues = error.header|decode %}
-                            {% set postValues = error.postParams|decode %}
-                            {% set getValues = error.getParams|decode %}
-                            <td>
-                                {% if headerValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalHeader-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionHeader-{{ error.id }}">
-                                                        {% for key, value in headerValues %}
-                                                            {% for v in value %}
-                                                                <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                                <div>
-                                                                    <p>
-                                                                        {{ v }}
-                                                                    </p>
-                                                                </div>
-                                                            {% endfor %}
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if postValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalPost-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionPost-{{ error.id }}">
-                                                        {% for key, value in postValues %}
-                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                            <div>
-                                                                <p>
-                                                                    {% if value is iterable %}
-                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
-                                                                    {% else %}
-                                                                        {{ value }}
-                                                                    {% endif %}
-                                                                </p>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if getValues is not empty %}
-                                    <a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalGet-{{ error.id }}">Params</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modalGet-{{ error.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
-                                        <div class="modal-dialog modal-lg" role="document" style="width: 70%">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div id="accordionGet-{{ error.id }}">
-                                                        {% for key, value in getValues %}
-                                                            <h3 style="color: #000000;text-align: left; font-size: 18px">{{ key }}</h3>
-                                                            <div>
-                                                                <p>
-                                                                    {% if value is iterable %}
-                                                                        {{ value|json_encode(constant('JSON_PRETTY_PRINT')) }}
-                                                                    {% else %}
-                                                                        {{ value }}
-                                                                    {% endif %}
-                                                                </p>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    Vide
-                                {% endif %}
-                            </td>
-                            <td>{{ error.terminalType }}</td>
-                            <td>{{ error.ville }}</td>
-                            <td>{{ error.user }}</td>
-                            <td>{{ error.errorCode }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
                 </table>
 
             </div>
@@ -207,153 +75,265 @@
     <script src="{{ asset('bundles/orcauserlog/js/highChartTheme.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script>
-        var table = $('#example').DataTable({
-            "paging": true,
-            "lengthChange": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": true,
-            "order": [0,'desc'],
+        var startTimeLine = moment().startOf('month');
+        var endTimeLine = moment().endOf('month').add(1, 'days');
+        function toStringHeader(data) {
+            var result = Object.keys(data).map(function (key, value) {
+                var child = "";
+                /*if(typeof data[key] === "object"){
+                 child = toString(data[key]);
+                 }else{*/
+                child = data[key];
+                //}
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key + ' </h3>' +
+                    '<div>' +
+                    '<p>' + child + '</p>' +
+                    '</div>'
+                    ;
+            });
+            return result
+        }
+
+        function toStringPost(data) {
+            var result = Object.keys(data).map(function (key, value) {
+                var child = "";
+                if (typeof data[key] === "object") {
+                    child = JSON.stringify(data[key]);
+                } else {
+                    child = data[key];
+                }
+                //return key+' : '+child+'<br>';
+                return '<h3 style="color: #000000;text-align: left; font-size: 18px">' + key + ' </h3>' +
+                    '<div>' +
+                    '<p>' + child + '</p>' +
+                    '</div>'
+                    ;
+            });
+            return result
+        }
+        var start = moment("{{ date_start }}");
+        var end = moment("{{ date_end }}");
+        $('#example').DataTable(
+            {
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    "url": '{{ path('dashboard_alerte_ajax') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD'),
+                    "type": 'POST'
+                },
+                "columns": [
+                    {"data": "id"},
+                    {"data": "date"},
+                    {"data": "user"},
+                    {"data": "uri"},
+                    {"data": "header"},
+                    {"data": "postParams"},
+                    {"data": "getParams"},
+                    {"data": "terminalType"},
+                    {"data": "zone"},
+                    {"data": "action"},
+                    {"data": "errorCode"},
+                ],
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 15,
+                "autoWidth": true,
+                "order": [1, 'DESC'],
 //            "ColumnDefs": [
 //                { "orderData": 0, "targets": [0] }
 //            ],
-            "bfilter":true,
-            "language": {
-                "sProcessing": "Traitement en cours...",
-                "sSearch": "Rechercher&nbsp;:",
-                "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
-                "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
-                "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
-                "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
-                "sInfoPostFix": "",
-                "sLoadingRecords": "Chargement en cours...",
-                "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
-                "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
-                "oPaginate": {
-                    "sFirst": "Premier",
-                    "sPrevious": "Pr&eacute;c&eacute;dent",
-                    "sNext": "Suivant",
-                    "sLast": "Dernier"
-                }
-            },
-            "fnDrawCallback":function () {
-                $( function() {
-                    {% for error in errors %}
-                        $( "#accordionHeader-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
-                        $( "#accordionPost-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
-                        $( "#accordionGet-{{ error.id }}" ).accordion({
-                            heightStyle: "content",
-                        });
-                    {% endfor %}
-                });
-            }
-        });
-
-        $(document).ready(function() {
-            $('#example tfoot th').each(function () {
-                var title = $(this).text();
-                $(this).html('<input type="text" placeholder="' + title + '" />');
-            });
-
-            // Apply the search
-            table.columns().every(function () {
-                var that = this;
-
-                $('input', this.footer()).on('keyup change', function () {
-                    if (that.search() !== this.value) {
-                        that
-                            .search(this.value)
-                            .draw();
+                "bfilter": true,
+                "language": {
+                    "sProcessing": "Traitement en cours...",
+                    "sSearch": "Rechercher&nbsp;:",
+                    "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
+                    "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+                    "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+                    "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
+                    "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+                    "oPaginate": {
+                        "sFirst": "Premier",
+                        "sPrevious": "Pr&eacute;c&eacute;dent",
+                        "sNext": "Suivant",
+                        "sLast": "Dernier"
                     }
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        visible: false,
+                        searchable: false,
+                    },
+                    {
+                        targets: 9,
+                        visible: false,
+                        searchable: false,
+                    },
+                    {
+                        targets: 3,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                data = '<a href="http://' + row['Host'] + '/app_dev.php' + row['uri'] + '">' + data.substr(0, 40) + '</a>';
+                            }
+                            return data;
+                        }
+                    }
+                    ,
+                    {
+                        targets: 4,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                if (data !== "[]" && data !== null) {
+                                    $dataarr = "";
+                                    data = JSON.parse(data);
+                                    var result = toStringHeader(data);
+                                    da =
+                                        '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalHeader-4-' + row['id'] + '">Params</a>' +
+                                        <!-- Modal -->
+                                        '<div class="modal fade" id="modalHeader-4-' + row['id'] + '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >' +
+                                        '<div class="modal-dialog modal-lg" role="document" style="width: 70%">' +
+                                        '<div class="modal-content">' +
+                                        '<div class="modal-header">' +
+                                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                        '<h4 class="modal-title" id="myModalLabel">Paramètres du header</h4>' +
+                                        '</div>' +
+                                        '<div class="modal-body">' +
+                                        '<div id="accordionHeader-' + row['id'] + '">' +
+                                        /*for(var i = 0; i < data.length; i++){
+                                         var obj
+                                         }*/
+                                        result.join("") +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
+                                } else {
+                                    da = '<p> vide </p>';
+                                }
+
+                            }
+                            return da;
+                        }
+                    },
+
+                    {
+                        targets: 5,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                if (data !== "[]" && data !== null) {
+                                    data = JSON.parse(data);
+                                    var result = toStringPost(data);
+                                    dat =
+                                        '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-5-' + row['id'] + '">Params</a>' +
+                                        <!-- Modal -->
+                                        '<div class="modal fade" id="modalPost-5-' + row['id'] + '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >' +
+                                        '<div class="modal-dialog modal-lg" role="document" style="width: 70%">' +
+                                        '<div class="modal-content">' +
+                                        '<div class="modal-header">' +
+                                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                        '<h4 class="modal-title" id="myModalLabel">Paramètres POST</h4>' +
+                                        '</div>' +
+                                        '<div class="modal-body">' +
+                                        '<div id="accordionPost-' + row['id'] + '">' +
+                                        /*for(var i = 0; i < data.length; i++){
+                                         var obj
+                                         }*/
+                                        result.join("") +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
+                                } else {
+                                    dat = "vide";
+                                }
+
+                            }
+                            return dat;
+                        }
+                    },
+                    {
+                        targets: 6,
+                        render: function (data, type, row) {
+                            if (type === 'display') {
+                                if (data !== "[]" && data !== null) {
+                                    data = JSON.parse(data);
+                                    var result = toStringPost(data);
+                                    dat =
+                                        '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#modalPost-6-' + row['id'] + '">Params</a>' +
+                                        <!-- Modal -->
+                                        '<div class="modal fade" id="modalPost-6-' + row['id'] + '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >' +
+                                        '<div class="modal-dialog modal-lg" role="document" style="width: 70%">' +
+                                        '<div class="modal-content">' +
+                                        '<div class="modal-header">' +
+                                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                        '<h4 class="modal-title" id="myModalLabel">Paramètres GET</h4>' +
+                                        '</div>' +
+                                        '<div class="modal-body">' +
+                                        '<div id="accordionPost-' + row['id'] + '">' +
+                                        /*for(var i = 0; i < data.length; i++){
+                                         var obj
+                                         }*/
+                                        result.join("") +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
+                                } else {
+                                    dat = "vide";
+                                }
+
+                            }
+                            return dat;
+                        }
+                    },
+                ],
+            "fnDrawCallback":function () {
+            $( function() {
+                console.log('TDG');
+                $("[id^='accordionHeader'],[id^='accordionPost'],[id^='accordionGet'][id^='xGet']" ).accordion({
+                    heightStyle: "content"
                 });
+                {#{% for action in actions %}#}
+                {#$( "#accordionHeader-{{ action.id }}" ).accordion({#}
+                {#heightStyle: "content"#}
+                {#});#}
+                {#$( "#accordionPost-{{ action.id }}" ).accordion({#}
+                {#heightStyle: "content"#}
+                {#});#}
+                {#$( "#accordionGet-{{ action.id }}" ).accordion({#}
+                {#heightStyle: "content"#}
+                {#});#}
+                {#$( "#xGet-{{ action.id }}" ).accordion({#}
+                {#heightStyle: "content",#}
+                {#});#}
+                {#{% endfor %}#}
             });
-
-        });
-
-        $(function() {
-
-            var start = moment().startOf('month');
-            var end = moment().endOf('month');
-            var isFirstTime = true;
-
-            function cb(start, end) {
-                $('#reportrange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-                if(isFirstTime){
-                    isFirstTime = false;
-                }
-                    else
-                {
-                    window.location.href = '{{ path('dashboard_ws_actions') }}?start=' + start.format('YYYY-MM-DD') + '&end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
-                }
+        }
             }
+        );
+        $(function () {
 
-            $('#reportrange').daterangepicker({
-                startDate: start,
-                endDate: end,
-                locale: {
-                    format: 'YYYY-MM-DD',
-
-                    "applyLabel": "Filtrer",
-                    "cancelLabel": "Annuler",
-                    "fromLabel": "From",
-                    "toLabel": "To",
-                    "customRangeLabel": "Custom",
-                    "daysOfWeek": [
-                        "Su",
-                        "Mo",
-                        "Tu",
-                        "We",
-                        "Th",
-                        "Fr",
-                        "Sa"
-                    ],
-                    "monthNames": [
-                        "January-",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December"
-                    ],
-                    "firstDay": 1
-                },
-                ranges: {
-                    'Aujourd\'hui': [moment(), moment()],
-                    'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Dernier 7J': [moment().subtract(6, 'days'), moment()],
-                    'Dernier 30J': [moment().subtract(29, 'days'), moment()],
-                    'Ce mois': [moment().startOf('month'), moment().endOf('month')],
-                    'Dernier Mois': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                }
-            }, cb);
-
-            cb(start, end);
-
-        });$(function() {
-
-            var start = moment().startOf('month');
-            var end = moment().endOf('month');
+            var start = moment("{{ date_start }}");
+            var end = moment("{{ date_end }}");
             var isFirstTime = true;
 
             function cb(start, end) {
                 $('#reportrange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-                if(isFirstTime){
+                if (isFirstTime) {
                     isFirstTime = false;
                 }
-                    else
-                {
-                    window.location.href = '{{ path('dashboard_alerte') }}?start=' + start.format('YYYY-MM-DD') + '&end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
+                else {
+                    window.location.href = '{{ path('dashboard_alerte') }}?date_start=' + start.format('YYYY-MM-DD') + '&date_end=' + end.add('YYYY-MM-DD').format('YYYY-MM-DD');
                 }
             }
 
@@ -406,5 +386,6 @@
             cb(start, end);
 
         });
+
     </script>
 {% endblock %}

@@ -782,7 +782,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         return $query->getSingleScalarResult();
     }
 
-    public function getErrors($start, $end)
+    public function getErrors($start, $end, $search = null, $dir = null, $iCol = null, $offset=0, $limit=10)
     {
 
         $sql = "SELECT l.`id`, l.`date`, l.`action`, l.`uri`, l.`terminal_type`, l.`ville`, l.`user_id`, l.`error_code`, l.`header`, l.`post_params`, l.`get_params`
@@ -791,9 +791,54 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`uri` NOT LIKE :bundles
                 AND l.`uri` NOT LIKE :log
                 AND l.`date` >= :start
-                AND l.`date` <= :end
-                ORDER BY l.`date` DESC
-                LIMIT 100";
+                AND l.`date` <= :end";
+
+        if (!empty($search['value'])){
+            $sql .= " AND (l.`date` LIKE :search
+                    OR l.`user_id` LIKE :search
+                    OR l.`uri` LIKE :search
+                    OR l.`terminal_type` LIKE :search
+                    OR l.`ville` LIKE :search)";
+        }
+
+
+
+        if ($dir == null)
+            $dir = 'DESC';
+
+        switch ($iCol) //-- ORDER BY
+        {
+            case 1:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+            case 2:
+                $sql .= " ORDER BY l.user_id $dir";
+            break;
+            case 3:
+                $sql .= " ORDER BY l.`uri` $dir";
+            break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+            break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+            break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+            break;
+            case 7:
+                $sql .= " ORDER BY l.`terminal_type` $dir";
+            break;
+            case 8:
+                $sql .= " ORDER BY l.`ville` $dir";
+            break;
+            default:
+                $sql .= " ORDER BY l.`date` $dir";
+            break;
+
+        }
+
+        $sql .=" LIMIT :lf OFFSET :off";
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('id', 'id');
@@ -801,7 +846,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
         $rsm->addScalarResult('action', 'action');
         $rsm->addScalarResult('uri', 'uri');
         $rsm->addScalarResult('terminal_type', 'terminalType');
-        $rsm->addScalarResult('ville', 'ville');
+        $rsm->addScalarResult('ville', 'zone');
         $rsm->addScalarResult('user_id', 'user');
         $rsm->addScalarResult('error_code', 'errorCode');
         $rsm->addScalarResult('header', 'header');
@@ -814,11 +859,41 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                     'end'    =>  $end,
                     'bundles'   =>'%/bundles/%',
                     'log'       =>'%/userLogChart/%',
+                    'search' => "%".$search['value']."%",
+                    'lf'  =>  (int)$limit,
+                    'off'  =>  (int)$offset
+                ]
+            )
+        ;
+        //echo $query->getSQL();die;
+        return $query->getResult();
+    }
+    public function getCountErrors($start, $end, $search = null, $dir = null, $iCol = null)
+    {
+
+        $sql = "SELECT count(*) as 'count' FROM `".$this->table_name."` l
+                WHERE l.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`uri` NOT LIKE :bundles
+                AND l.`uri` NOT LIKE :log
+                AND l.`date` >= :start
+                AND l.`date` <= :end
+                ORDER BY l.`date` DESC
+                LIMIT 100";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('count', 'count');
+        $query = $this->em->createNativeQuery($sql, $rsm)
+            ->setParameters(
+                [
+                    'start'    =>  $start,
+                    'end'    =>  $end,
+                    'bundles'   =>'%/bundles/%',
+                    'log'       =>'%/userLogChart/%',
                 ]
             )
         ;
 
-        return $query->getResult();
+        return $query->getSingleScalarResult();
     }
 
     public function getTopFive($month, $year)
