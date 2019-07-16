@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('userlog_repository')->defaultValue('OrcaUserLogBundle:TblUserLog')->end()
                 ->scalarNode('table_name')->defaultValue('tbl_user_log')->end()
                 ->scalarNode('user_class')->isRequired()->end()
+                ->arrayNode('exclude_uri')->prototype('scalar')->defaultValue([])->end()
             ->end()
         ;
 

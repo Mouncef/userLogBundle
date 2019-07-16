@@ -86,6 +86,20 @@ orca_user_log:
     table_name: tbl_user_log #optional
 ```
 
+Pour exclure des liens des alerts vous pouvez ajouter le paramétre suivant 
+```yaml
+orca_user_log:
+    //...
+    exclude_uri: [''] #optional
+```
+
+#Exemple 
+```yaml
+orca_user_log:
+    //...
+    exclude_uri: ['test/something']
+```
+
 ### Créer une nouvelle entité dans votre bundle qui herite de l'entité TblUserLog
 
 Le bundle gére les modifs faite sur l'entité [le même principe de doctrine migration].

@@ -104,7 +104,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
             if ($em->isOpen()){
                 // inserting
                 //!empty($routeName) &&
-                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
+                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array($uri, $this->container->getParameter('orca_user_log.exclude_uri'))) {
 
 
 //                    if ($this->container->getParameter('userlog_entity') == 'default'){

@@ -27,6 +27,7 @@ class OrcaUserLogExtension extends Extension
         $container->setParameter('orca_user_log.userlog_repository', $config['userlog_repository']);
         $container->setParameter('orca_user_log.table_name', $config['table_name']);
         $container->setParameter('orca_user_log.user_class', $config['user_class']);
+        $container->setParameter('orca_user_log.exclude_uri', $config['exclude_uri']);
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
