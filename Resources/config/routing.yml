@@ -49,6 +49,10 @@ dashboard_alerte:
     path:     /alertes
     defaults: { _controller: OrcaUserLogBundle:Dashboard:alerte }
 
+dashboard_alerte_ajax:
+    path:     /alertesAjax
+    defaults: { _controller: OrcaUserLogBundle:Dashboard:alerteAjax }
+
 dashboard_processlist:
     path:     /processlist
     defaults: { _controller: OrcaUserLogBundle:Dashboard:processlist }
