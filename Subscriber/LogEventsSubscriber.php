@@ -54,6 +54,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
         $uri = $event->getRequest()->getRequestUri();
 
 
+
         // Get Ip
         $ip = $request->getClientIp();
 
@@ -106,6 +107,12 @@ class LogEventsSubscriber implements EventSubscriberInterface
                 //!empty($routeName) &&
                 if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array($uri, $this->container->getParameter('orca_user_log.exclude_uri'))) {
 
+                    $excludedLinks = $this->container->getParameter('orca_user_log.exclude_uri');
+                    foreach ($excludedLinks as $excludedLink){
+                        if ($uri == urldecode($excludedLink)){
+                            return;
+                        }
+                    }
 
 //                    if ($this->container->getParameter('userlog_entity') == 'default'){
 //                        $userLog = new TblUserLog();
@@ -222,6 +229,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
         $uri = $event->getRequest()->getRequestUri();
 
 
+
         // Get Ip
         $ip = $request->getClientIp();
 
@@ -260,8 +268,14 @@ class LogEventsSubscriber implements EventSubscriberInterface
                 if ($em->isOpen()){
                     // inserting
                     //!empty($routeName) &&
-                    if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt') {
+                    if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array($uri, $this->container->getParameter('orca_user_log.exclude_uri')) ) {
 
+                        $excludedLinks = $this->container->getParameter('orca_user_log.exclude_uri');
+                        foreach ($excludedLinks as $excludedLink){
+                            if ($uri == urldecode($excludedLink)){
+                                return;
+                            }
+                        }
 
                         //
 //                        if ($this->container->getParameter('userlog_entity') == 'default'){
