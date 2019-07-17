@@ -55,6 +55,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
 
 
 
+
         // Get Ip
         $ip = $request->getClientIp();
 
@@ -70,8 +71,6 @@ class LogEventsSubscriber implements EventSubscriberInterface
 
         //&& $action == $controller && $action != null
         if ($wdt != '_wdt' && $masterRequest == true && $uri == $url){
-
-            //var_dump("test");die();
             // get User()
 
             //Get Status codev
@@ -105,15 +104,8 @@ class LogEventsSubscriber implements EventSubscriberInterface
             if ($em->isOpen()){
                 // inserting
                 //!empty($routeName) &&
-                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array($uri, $this->container->getParameter('orca_user_log.exclude_uri'))) {
-
-                    $excludedLinks = $this->container->getParameter('orca_user_log.exclude_uri');
-                    foreach ($excludedLinks as $excludedLink){
-                        if ($uri == urldecode($excludedLink)){
-                            return;
-                        }
-                    }
-
+                if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' && !in_array(urldecode($uri), $this->container->getParameter('orca_user_log.exclude_uri'))) {
+//
 //                    if ($this->container->getParameter('userlog_entity') == 'default'){
 //                        $userLog = new TblUserLog();
 //                    }else{
@@ -246,7 +238,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
 
         if (!in_array($statusCode, $errorCodes)){
             //&& $action == $controller && $action != null
-            if ($wdt != '_wdt' && $masterRequest == true && $uri == $url ){
+            if ($wdt != '_wdt' && $masterRequest == true && $uri == $url){
 
                 //var_dump("test");die();
                 // get User()
@@ -268,14 +260,7 @@ class LogEventsSubscriber implements EventSubscriberInterface
                 if ($em->isOpen()){
                     // inserting
                     //!empty($routeName) &&
-                    if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array($uri, $this->container->getParameter('orca_user_log.exclude_uri')) ) {
-
-                        $excludedLinks = $this->container->getParameter('orca_user_log.exclude_uri');
-                        foreach ($excludedLinks as $excludedLink){
-                            if ($uri == urldecode($excludedLink)){
-                                return;
-                            }
-                        }
+                    if ( $routeName!=='fos_js_routing_js' && $routeName!=='_wdt' &&  !in_array(urldecode($uri), $this->container->getParameter('orca_user_log.exclude_uri'))) {
 
                         //
 //                        if ($this->container->getParameter('userlog_entity') == 'default'){
