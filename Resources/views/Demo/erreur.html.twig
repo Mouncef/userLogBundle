@@ -180,7 +180,7 @@
                         targets: 3,
                         render: function (data, type, row) {
                             if (type === 'display') {
-                                data = '<a href="http://' + row['Host'] + '/app_dev.php' + row['uri'] + '">' + data.substr(0, 40) + '</a>';
+                                data = '<a href="' + row['Host'] + row['uri'] + '">' + data.substr(0, 40) + '</a>';
                             }
                             return data;
                         }

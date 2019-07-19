@@ -228,14 +228,20 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         switch ($iCol) //-- ORDER BY
         {
+            case 0:
+                $sql .= " ORDER BY l.`user_id` $dir";
+            break;
             case 1:
-                $sql .= " ORDER BY l.`date` $dir";
+                $sql .= " ORDER BY nb_connexion $dir";
             break;
             case 2:
-                $sql .= " ORDER BY l.user_id $dir";
+                $sql .= " ORDER BY nb_erreur $dir";
             break;
-            default:
-                $sql .= " ORDER BY nb_connexion $dir";
+            case 3:
+                $sql .= " ORDER BY last_conn $dir";
+            break;
+            case 4:
+                $sql .= " ORDER BY terminals $dir";
             break;
         }
 
@@ -300,7 +306,7 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
                 AND l.`date` = :start
                 AND l.`date` = :dateend
                 AND (l.`route_name` LIKE '%Token%' OR l.`route_name` LIKE '%auth%' )
-                AND l.`error_code` IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
+                AND l.`error_code` NOT IN (200,201,202,203,204,205,206,207,208,210,226,300,301,302,303,304,305,306,307,308,310)
                 AND l.`header` IS NOT NULL";
 
 
@@ -317,15 +323,27 @@ class TblUserLogRepository extends \Doctrine\ORM\EntityRepository
 
         switch ($iCol) //-- ORDER BY
         {
+            case 0:
+                $sql .= " ORDER BY l.`user_id` $dir";
+                break;
             case 1:
-                $sql .= " ORDER BY l.`date` $dir";
-            break;
-            case 2:
-                $sql .= " ORDER BY l.user_id $dir";
-            break;
-            default:
                 $sql .= " ORDER BY nb_connexion $dir";
-            break;
+                break;
+            case 2:
+                $sql .= " ORDER BY last_conn $dir";
+                break;
+            case 3:
+                $sql .= " ORDER BY terminals $dir";
+                break;
+            case 4:
+                $sql .= " ORDER BY l.`header` $dir";
+                break;
+            case 5:
+                $sql .= " ORDER BY l.`post_params` $dir";
+                break;
+            case 6:
+                $sql .= " ORDER BY l.`get_params` $dir";
+                break;
         }
 
         $sql .=" LIMIT :lf OFFSET :off";

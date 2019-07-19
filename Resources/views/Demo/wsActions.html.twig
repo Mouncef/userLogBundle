@@ -138,7 +138,7 @@
                     targets:3,
                     render: function ( data, type, row) {
                         if(type === 'display'){
-                            data = '<a href="http://'+ row['Host'] +'/app_dev.php'+ row['URL'] +'">' + data.substr(0, 40) + '</a>';
+                            data = '<a href="http://'+ row['Host'] + row['URL'] +'">' + data.substr(0, 40) + '</a>';
                         }
                         return data;
                     }
